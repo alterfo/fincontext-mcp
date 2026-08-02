@@ -120,11 +120,11 @@ Ed25519. Private key held only by the developer (offline generator). Public key 
 
 ### Task 9: Offline Pro-key license gating (M5)
 
-- [ ] Implement `src/license.js`: Ed25519 offline verification of `base64url(payload).base64url(signature)`, `exp` check, embedded public key, no network calls; return the unlocked module set
-- [ ] Gate `tools/list` and premium tool calls by `modules`; load `kontur`/`1c` connectors only when the matching `connectors:*` module is present; return the JSON-RPC upgrade error otherwise
-- [ ] Provide an offline key-generator utility (private key stays with the developer) for issuing signed keys
-- [ ] write tests for valid/invalid/expired keys and premium gating (hidden in `tools/list`, error on call)
-- [ ] run project tests - must pass before next task
+- [x] Implement `src/license.js`: Ed25519 offline verification of `base64url(payload).base64url(signature)`, `exp` check, embedded public key, no network calls; return the unlocked module set
+- [x] Gate `tools/list` and premium tool calls by `modules`; load `kontur`/`1c` connectors only when the matching `connectors:*` module is present; return the JSON-RPC upgrade error otherwise
+- [x] Provide an offline key-generator utility (private key stays with the developer) for issuing signed keys
+- [x] write tests for valid/invalid/expired keys and premium gating (hidden in `tools/list`, error on call)
+- [x] run project tests - must pass before next task
 
 ### Task 10: Deliverable Terraform module (client deploy)
 

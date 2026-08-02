@@ -19,9 +19,11 @@ const { createOpenHandlers, createPremiumHandlers, syncSource } = require('../sr
 const { createTochkaConnector } = require('../src/connectors/tochka');
 const { createMoyskladConnector } = require('../src/connectors/moysklad');
 const { createLockbox } = require('../src/lockbox');
+const { unlockedModules } = require('../src/license');
 
 const store = createStore();
 const handlers = { ...createOpenHandlers(store), ...createPremiumHandlers(store) };
+const modules = unlockedModules(process.env.FINCONTEXT_PRO_KEY);
 
 async function seedFromSandbox() {
   const lockbox = createLockbox();
@@ -80,6 +82,6 @@ rl.on('line', async (line) => {
     return;
   }
   await ready;
-  const result = await handleMessage(message, { store, handlers });
+  const result = await handleMessage(message, { store, handlers, unlockedModules: modules });
   send(result);
 });

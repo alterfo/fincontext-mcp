@@ -18,10 +18,25 @@ describe('MCP FaaS handler', () => {
     expect(body.result.serverInfo.name).toBe('fincontext-mcp');
   });
 
-  test('POST tools/list returns the four tools', async () => {
+  test('POST tools/list without a Pro-key returns only the open tools', async () => {
     const res = await handler(post({ jsonrpc: '2.0', id: 2, method: 'tools/list', params: {} }));
     const body = JSON.parse(res.body);
-    expect(body.result.tools).toHaveLength(4);
+    const names = body.result.tools.map((t) => t.name).sort();
+    expect(names).toEqual(['check_payment', 'get_cash_position']);
+  });
+
+  test('POST tools/call for a premium tool without a Pro-key returns the upgrade error', async () => {
+    const res = await handler(
+      post({
+        jsonrpc: '2.0',
+        id: 3,
+        method: 'tools/call',
+        params: { name: 'reconcile', arguments: {} },
+      })
+    );
+    const body = JSON.parse(res.body);
+    expect(body.error.code).toBe(-32001);
+    expect(body.error.data.upgrade_url).toBeDefined();
   });
 
   test('decodes base64-encoded bodies from the API Gateway', async () => {

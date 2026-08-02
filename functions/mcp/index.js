@@ -14,12 +14,24 @@
 
 const { handleMessage, makeError, ERROR } = require('../../src/mcp');
 const { createStore } = require('../../src/ydb');
-const { createOpenHandlers } = require('../../src/handlers');
+const { createOpenHandlers, createPremiumHandlers } = require('../../src/handlers');
+const { unlockedModules } = require('../../src/license');
 
 const JSON_HEADERS = { 'Content-Type': 'application/json' };
 
 const store = createStore();
 const openHandlers = createOpenHandlers(store);
+const premiumHandlers = createPremiumHandlers(store);
+
+function proKeyFromEvent(event) {
+  const headers = (event && event.headers) || {};
+  return (
+    headers['X-FinContext-Pro-Key'] ||
+    headers['x-fincontext-pro-key'] ||
+    process.env.FINCONTEXT_PRO_KEY ||
+    null
+  );
+}
 
 function response(statusCode, bodyObj, extraHeaders) {
   return {
@@ -41,11 +53,12 @@ function decodeBody(event) {
  * Build the per-request MCP context. In later tasks this is where the license
  * (unlockedModules) and tool handlers (backed by YDB/connectors) are injected.
  */
-function buildContext(_event) {
+function buildContext(event) {
+  const modules = unlockedModules(proKeyFromEvent(event));
   return {
     store,
-    handlers: { ...openHandlers },
-    // unlockedModules omitted -> all tools visible (Task 1 skeleton).
+    handlers: { ...openHandlers, ...premiumHandlers },
+    unlockedModules: modules,
   };
 }
 
