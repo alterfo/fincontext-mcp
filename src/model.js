@@ -55,7 +55,7 @@ function makeTransaction(input) {
 
   const nativeId = input.native_id !== undefined ? input.native_id : null;
   const tx = {
-    id: input.id || computeId(input.source, input.account_id, nativeId),
+    id: null,
     source: input.source,
     kind: input.kind,
     account_id: input.account_id,
@@ -75,6 +75,11 @@ function makeTransaction(input) {
     raw: input.raw === undefined ? null : input.raw,
   };
   tx.dedup_key = input.dedup_key || computeDedupKey(tx);
+  tx.id =
+    input.id ||
+    (nativeId !== null && nativeId !== ''
+      ? computeId(tx.source, tx.account_id, nativeId)
+      : tx.dedup_key);
   return tx;
 }
 
