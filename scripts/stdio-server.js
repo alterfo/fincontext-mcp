@@ -15,30 +15,47 @@
 const readline = require('readline');
 const { handleMessage, makeError, ERROR } = require('../src/mcp');
 const { createStore } = require('../src/ydb');
-const { createOpenHandlers, syncSource } = require('../src/handlers');
+const { createOpenHandlers, createPremiumHandlers, syncSource } = require('../src/handlers');
 const { createTochkaConnector } = require('../src/connectors/tochka');
+const { createMoyskladConnector } = require('../src/connectors/moysklad');
 const { createLockbox } = require('../src/lockbox');
 
 const store = createStore();
-const handlers = createOpenHandlers(store);
+const handlers = { ...createOpenHandlers(store), ...createPremiumHandlers(store) };
 
 async function seedFromSandbox() {
   const lockbox = createLockbox();
-  let token;
-  try {
-    token = await lockbox.getToken('tochka');
-  } catch (_err) {
-    return;
-  }
-  const baseUrl = process.env.TOCHKA_BASE_URL || undefined;
-  const connector = createTochkaConnector({ token, baseUrl });
   const to = new Date();
   const from = new Date(to.getTime() - 30 * 86400000);
-  await syncSource(store, connector, {
-    from: from.toISOString(),
-    to: to.toISOString(),
-    as_of: to.toISOString(),
-  });
+  const period = { from: from.toISOString(), to: to.toISOString(), as_of: to.toISOString() };
+
+  let tochkaToken;
+  try {
+    tochkaToken = await lockbox.getToken('tochka');
+  } catch (_err) {
+    tochkaToken = null;
+  }
+  if (tochkaToken) {
+    const connector = createTochkaConnector({
+      token: tochkaToken,
+      baseUrl: process.env.TOCHKA_BASE_URL || undefined,
+    });
+    await syncSource(store, connector, period);
+  }
+
+  let moyskladToken;
+  try {
+    moyskladToken = await lockbox.getToken('moysklad');
+  } catch (_err) {
+    moyskladToken = null;
+  }
+  if (moyskladToken) {
+    const connector = createMoyskladConnector({
+      token: moyskladToken,
+      baseUrl: process.env.MOYSKLAD_BASE_URL || undefined,
+    });
+    await syncSource(store, connector, period);
+  }
 }
 
 function send(obj) {

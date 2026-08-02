@@ -106,10 +106,10 @@ Ed25519. Private key held only by the developer (offline generator). Public key 
 
 ### Task 7: MoySklad connector and reconcile tool live (M4)
 
-- [ ] Implement `src/connectors/moysklad.js` against a free test account with normalization into the unified model
-- [ ] Wire the `reconcile` tool to run over a real bank(Tochka)↔ledger(MoySklad) source pair
-- [ ] write tests for MoySklad normalization and the wired `reconcile` tool
-- [ ] run project tests - must pass before next task
+- [x] Implement `src/connectors/moysklad.js` against a free test account with normalization into the unified model
+- [x] Wire the `reconcile` tool to run over a real bank(Tochka)↔ledger(MoySklad) source pair
+- [x] write tests for MoySklad normalization and the wired `reconcile` tool
+- [x] run project tests - must pass before next task
 
 ### Task 8: Timer sync and alerts (M5)
 

@@ -1,7 +1,7 @@
 'use strict';
 
-const { computeCashPosition, checkPayment } = require('./reconcile');
-const { DEFAULT_CURRENCY } = require('./model');
+const { computeCashPosition, checkPayment, reconcile } = require('./reconcile');
+const { DEFAULT_CURRENCY, hashParts } = require('./model');
 
 async function buildAccountInputs(store, filterIds) {
   const accounts = await store.listAccounts();
@@ -52,6 +52,57 @@ function createOpenHandlers(store) {
   };
 }
 
+function periodBounds(period = {}) {
+  const from = period.from || null;
+  let to = period.to || null;
+  if (to && /^\d{4}-\d{2}-\d{2}$/.test(to)) to = `${to}T23:59:59.999Z`;
+  return { from, to };
+}
+
+function withinPeriod(tx, from, to) {
+  const at = String(tx.booked_at || '');
+  if (from && at < String(from)) return false;
+  if (to && at > String(to)) return false;
+  return true;
+}
+
+async function loadReconcileSide(store, source, kind, from, to) {
+  const rows = await store.listTransactions({ source, kind });
+  return rows.filter((tx) => withinPeriod(tx, from, to));
+}
+
+function createReconcileHandler(store) {
+  return async (args = {}) => {
+    const period = args.period || {};
+    const bankSource = args.bank_source;
+    const ledgerSource = args.ledger_source;
+    const tolerance = args.tolerance || {};
+    const { from, to } = periodBounds(period);
+
+    const bank = await loadReconcileSide(store, bankSource, 'bank', from, to);
+    const ledger = await loadReconcileSide(store, ledgerSource, 'ledger', from, to);
+
+    const result = reconcile({ bank, ledger, tolerance });
+
+    const runId = hashParts(bankSource, ledgerSource, period.from, period.to);
+    await store.putReconcileRun({
+      id: runId,
+      bank_source: bankSource,
+      ledger_source: ledgerSource,
+      period: { from: period.from || null, to: period.to || null },
+      summary: result.summary,
+    });
+
+    return result;
+  };
+}
+
+function createPremiumHandlers(store) {
+  return {
+    reconcile: createReconcileHandler(store),
+  };
+}
+
 async function syncSource(store, connector, period = {}) {
   const pulled = await connector.pull(period);
   const accounts = pulled.accounts || [];
@@ -74,4 +125,10 @@ async function syncSource(store, connector, period = {}) {
   };
 }
 
-module.exports = { createOpenHandlers, syncSource, buildAccountInputs };
+module.exports = {
+  createOpenHandlers,
+  createPremiumHandlers,
+  createReconcileHandler,
+  syncSource,
+  buildAccountInputs,
+};
