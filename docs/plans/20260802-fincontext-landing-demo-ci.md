@@ -64,11 +64,11 @@ Add a public face and release plumbing to the existing FinContext MCP server (M1
 
 ### Task 4: Verify acceptance criteria
 
-- [ ] Verify all requirements from Overview: landing on `GET /` of the mcp function, interactive demo on the fixture across all four tools, `docs/SETUP.md`, and CI workflow
-- [ ] Confirm the demo endpoint returns cash 450 000₽, reconcile 6 matched + 3 exceptions, and the forecast gap on 2026-08-12 over the frozen fixture
-- [ ] run full project test suite
-- [ ] run project linter - all issues must be fixed
-- [ ] run `npm run build` - packaging must succeed
+- [x] Verify all requirements from Overview: landing on `GET /` of the mcp function, interactive demo on the fixture across all four tools, `docs/SETUP.md`, and CI workflow
+- [x] Confirm the demo endpoint returns cash 450 000₽, reconcile 6 matched + 3 exceptions, and the forecast gap on 2026-08-12 over the frozen fixture
+- [x] run full project test suite
+- [x] run project linter - all issues must be fixed
+- [x] run `npm run build` - packaging must succeed
 
 ## Post-Completion
 
