@@ -2,8 +2,8 @@
 
 const crypto = require('crypto');
 
-const SOURCES = ['tochka', 'moysklad', 'kontur', '1c'];
-const KINDS = ['bank', 'ledger'];
+const SOURCES = ['tochka', 'moysklad', 'kontur', '1c', 'ozon', 'wb'];
+const KINDS = ['bank', 'ledger', 'marketplace'];
 const DIRECTIONS = ['in', 'out'];
 const STATUSES = ['posted', 'pending', 'hold'];
 const DEFAULT_CURRENCY = 'RUB';
