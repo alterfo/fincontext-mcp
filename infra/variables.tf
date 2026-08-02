@@ -93,6 +93,12 @@ variable "region" {
   default     = "ru-central1"
 }
 
+variable "public_base_url" {
+  type        = string
+  description = "Public base URL of the landing (API Gateway or custom domain), e.g. https://<gw>.apigw.yandexcloud.net. Lets the form/demo call the right endpoint even when the page is opened from the raw function URL. Empty = same-origin relative calls."
+  default     = ""
+}
+
 variable "leads_table" {
   type        = string
   description = "YDB Document API table name where landing leads are stored."

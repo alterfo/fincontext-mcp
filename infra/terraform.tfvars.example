@@ -23,6 +23,9 @@ lockbox_token_key = "token"
 # Пусто = функция только логирует лид ([LEAD] в Cloud Logging).
 # Заведите статический ключ доступа для сервис-аккаунта с правами ydb.editor и Postbox:
 #   yc iam access-key create --service-account-name fincontext-mcp-sa
+# Публичный адрес лендинга (домен API Gateway или свой домен) — чтобы форма/демо
+# слали запросы на рабочий эндпоинт даже при открытии по «сырому» URL функции:
+# public_base_url  = "https://<gw>.apigw.yandexcloud.net"
 # region           = "ru-central1"
 # leads_table      = "leads"
 # lead_notify_to   = "you@example.com"

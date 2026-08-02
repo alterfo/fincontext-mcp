@@ -20,6 +20,7 @@ locals {
       POSTBOX_ENDPOINT = var.postbox_endpoint
       YC_REGION        = var.region
     },
+    var.public_base_url != "" ? { PUBLIC_BASE_URL = var.public_base_url } : {},
     var.lead_notify_from != "" ? { LEAD_NOTIFY_FROM = var.lead_notify_from } : {},
     var.lead_notify_to != "" ? { LEAD_NOTIFY_TO = var.lead_notify_to } : {},
     var.yc_static_key_id != "" ? { YC_STATIC_KEY_ID = var.yc_static_key_id } : {},

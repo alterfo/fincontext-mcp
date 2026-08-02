@@ -272,6 +272,7 @@ const ICON = {
 const SCRIPT = `
 (function () {
   var DEMO = window.__DEMO__ || { results: {} };
+  var BASE = window.__BASE__ || '';
   var RUB = new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB', maximumFractionDigits: 0 });
   function rub(k) { return RUB.format((k || 0) / 100); }
   function esc(s) { return String(s).replace(/[&<>]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]; }); }
@@ -364,7 +365,7 @@ const SCRIPT = `
           '<details class="raw"><summary>Ответ MCP-сервера (JSON)</summary><pre>' + esc(JSON.stringify(res, null, 2)) + '</pre></details>';
       }
       if (result) { paint(result); return; }
-      fetch('/demo', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ tool: tool }) })
+      fetch(BASE + '/demo', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ tool: tool }) })
         .then(function (r) { return r.json(); })
         .then(function (d) { paint(d.result); })
         .catch(function () { out.innerHTML = '<div class="empty">Не удалось получить ответ. Обновите страницу.</div>'; });
@@ -390,7 +391,7 @@ const SCRIPT = `
     if (!validEmail(email)) { if (status) { status.className = 'lead-status err'; status.textContent = 'Введите корректный email.'; } return; }
     var btn = form.querySelector('button');
     btn.disabled = true; var prev = btn.textContent; btn.textContent = 'Отправляем…';
-    fetch('/lead', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: email, source: form.getAttribute('data-source') || 'landing' }) })
+    fetch(BASE + '/lead', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: email, source: form.getAttribute('data-source') || 'landing' }) })
       .then(function (r) { return r.json().catch(function () { return {}; }).then(function (d) { return { ok: r.ok && d.ok }; }); })
       .then(function (res) {
         if (res.ok) {
@@ -637,7 +638,7 @@ function landingHtml(demo) {
     '<span class="muted">Финансовый контекст для AI-ассистента бизнеса · Self-hosted · Данные в вашем контуре</span>' +
     '</div></footer>\n' +
 
-    '<script>window.__DEMO__ = ' + embedJson(embedded) + ';</script>\n' +
+    '<script>window.__DEMO__ = ' + embedJson(embedded) + '; window.__BASE__ = ' + embedJson(data.baseUrl || '') + ';</script>\n' +
     '<script>' + SCRIPT + '</script>\n' +
     '</body>\n</html>\n'
   );

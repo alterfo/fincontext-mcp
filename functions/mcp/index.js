@@ -218,7 +218,7 @@ module.exports.handler = async function handler(event, _context) {
 
   if (method === 'GET' && path === '/') {
     const demo = await collectDemo();
-    return htmlResponse(200, landingHtml(demo));
+    return htmlResponse(200, landingHtml({ ...demo, baseUrl: process.env.PUBLIC_BASE_URL || '' }));
   }
 
   if (path === '/demo' && method === 'POST') {
