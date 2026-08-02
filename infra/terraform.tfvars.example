@@ -18,3 +18,14 @@ moysklad_base_url = ""
 lockbox_token_key = "token"
 
 # pro_key = "eyJ...payload.eyJ...signature"
+
+# Лиды с лендинга: хранение в YDB (Document API) + письмо через Postbox.
+# Пусто = функция только логирует лид ([LEAD] в Cloud Logging).
+# Заведите статический ключ доступа для сервис-аккаунта с правами ydb.editor и Postbox:
+#   yc iam access-key create --service-account-name fincontext-mcp-sa
+# region           = "ru-central1"
+# leads_table      = "leads"
+# lead_notify_to   = "you@example.com"
+# lead_notify_from = "noreply@yourdomain.ru"   # подтверждённый отправитель Postbox
+# yc_static_key_id     = "aje..."
+# yc_static_key_secret = "YC...."

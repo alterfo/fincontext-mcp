@@ -6,6 +6,7 @@ const { createOpenHandlers, createPremiumHandlers } = require('../../src/handler
 const { unlockedModules } = require('../../src/license');
 const { createDemoStore, demoMeta } = require('../../src/demo');
 const { landingHtml } = require('../../src/landing');
+const { recordLead } = require('../../src/leads');
 
 const JSON_HEADERS = { 'Content-Type': 'application/json' };
 const HTML_HEADERS = { 'Content-Type': 'text/html; charset=utf-8' };
@@ -184,7 +185,8 @@ async function handleLead(event) {
     message: clampStr(payload.message, 1000),
     source: clampStr(payload.source, 80),
   };
-  console.log(`[LEAD] ${JSON.stringify(lead)}`);
+  const outcome = await recordLead(lead);
+  console.log(`[LEAD] ${JSON.stringify({ ...lead, stored: outcome.stored, notified: outcome.notified, errors: outcome.errors })}`);
   return response(200, { ok: true }, CORS_HEADERS);
 }
 

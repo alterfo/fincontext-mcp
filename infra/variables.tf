@@ -86,3 +86,47 @@ variable "lockbox_token_key" {
   description = "Entry name inside each Lockbox secret payload that holds the token."
   default     = "token"
 }
+
+variable "region" {
+  type        = string
+  description = "Region used for SigV4-signed calls to the YDB Document API and Postbox."
+  default     = "ru-central1"
+}
+
+variable "leads_table" {
+  type        = string
+  description = "YDB Document API table name where landing leads are stored."
+  default     = "leads"
+}
+
+variable "postbox_endpoint" {
+  type        = string
+  description = "Yandex Cloud Postbox (SES-compatible) endpoint for lead notification emails."
+  default     = "https://postbox.cloud.yandex.net"
+}
+
+variable "lead_notify_from" {
+  type        = string
+  description = "Verified Postbox sender address for lead notifications. Empty disables email."
+  default     = ""
+}
+
+variable "lead_notify_to" {
+  type        = string
+  description = "Recipient address for new-lead notifications. Empty disables email."
+  default     = ""
+}
+
+variable "yc_static_key_id" {
+  type        = string
+  description = "Static access key id (SA with ydb.editor + Postbox rights) for Document API and Postbox. Empty leaves lead persistence/email off."
+  default     = ""
+  sensitive   = true
+}
+
+variable "yc_static_key_secret" {
+  type        = string
+  description = "Static access key secret paired with yc_static_key_id."
+  default     = ""
+  sensitive   = true
+}

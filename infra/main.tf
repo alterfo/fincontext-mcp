@@ -12,6 +12,19 @@ locals {
     LOCKBOX_MOYSKLAD_ID = yandex_lockbox_secret.moysklad.id
     LOCKBOX_TOKEN_KEY   = var.lockbox_token_key
   }
+
+  leads_environment = merge(
+    {
+      LEADS_YDB_DOCAPI = yandex_ydb_database_serverless.fincontext.document_api_endpoint
+      LEADS_TABLE      = var.leads_table
+      POSTBOX_ENDPOINT = var.postbox_endpoint
+      YC_REGION        = var.region
+    },
+    var.lead_notify_from != "" ? { LEAD_NOTIFY_FROM = var.lead_notify_from } : {},
+    var.lead_notify_to != "" ? { LEAD_NOTIFY_TO = var.lead_notify_to } : {},
+    var.yc_static_key_id != "" ? { YC_STATIC_KEY_ID = var.yc_static_key_id } : {},
+    var.yc_static_key_secret != "" ? { YC_STATIC_KEY_SECRET = var.yc_static_key_secret } : {},
+  )
 }
 
 resource "yandex_iam_service_account" "fincontext" {
@@ -85,6 +98,7 @@ resource "yandex_function" "mcp" {
 
   environment = merge(
     local.base_environment,
+    local.leads_environment,
     var.pro_key != "" ? { FINCONTEXT_PRO_KEY = var.pro_key } : {},
   )
 
