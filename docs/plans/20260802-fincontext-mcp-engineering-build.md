@@ -67,11 +67,11 @@ Ed25519. Private key held only by the developer (offline generator). Public key 
 
 ### Task 2: Normalized data model and synthetic generator (M2 foundation)
 
-- [ ] Implement the normalized `Transaction`, `Statement`, and `CashPosition` types/builders from Technical Details (kopecks int64, sign via `direction`, no floats)
-- [ ] Build a synthetic generator that emits paired bank statements and ledger entries with pre-computed, known discrepancies (missing entries, amount mismatches, partial payments, duplicates, ambiguous purposes)
-- [ ] Emit expected-output fixtures alongside each synthetic case for assertion
-- [ ] write tests validating generator invariants (statement completeness `opening + Σin − Σout == closing`, dedup_key stability)
-- [ ] run project tests - must pass before next task
+- [x] Implement the normalized `Transaction`, `Statement`, and `CashPosition` types/builders from Technical Details (kopecks int64, sign via `direction`, no floats)
+- [x] Build a synthetic generator that emits paired bank statements and ledger entries with pre-computed, known discrepancies (missing entries, amount mismatches, partial payments, duplicates, ambiguous purposes)
+- [x] Emit expected-output fixtures alongside each synthetic case for assertion
+- [x] write tests validating generator invariants (statement completeness `opening + Σin − Σout == closing`, dedup_key stability)
+- [x] run project tests - must pass before next task
 
 ### Task 3: Reconcile domain core on synthetics (M2)
 
