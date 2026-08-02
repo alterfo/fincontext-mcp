@@ -42,12 +42,12 @@ Add a public face and release plumbing to the existing FinContext MCP server (M1
 
 ### Task 1: Landing page and interactive demo on the mcp function
 
-- [ ] Extend `functions/mcp/index.js` to serve the landing HTML on `GET /` while preserving the existing `POST` JSON-RPC, OPTIONS/CORS, 405, and 202 behavior
-- [ ] Add a demo endpoint on the same function that runs the four tools against a cached `createDemoStore()` (premium tools allowed on demo data only) and returns their JSON results
-- [ ] Build the self-contained landing HTML (inline CSS/JS, no external assets) with buttons that call each tool and render results inline (cash position, reconcile summary + exceptions, forecast gap + daily dip); use a strong `check_payment` query so it returns a confident match
-- [ ] Add API Gateway routes for `/` and the demo path in `infra/openapi.yaml.tftpl`
-- [ ] write tests: `GET /` returns HTML; the demo endpoint returns the expected results over the fixture (cash 450 000₽, reconcile 6 matched + 3 exception types, forecast gap on 2026-08-12)
-- [ ] run project tests, lint, and `npm run build` - all must pass before next task
+- [x] Extend `functions/mcp/index.js` to serve the landing HTML on `GET /` while preserving the existing `POST` JSON-RPC, OPTIONS/CORS, 405, and 202 behavior
+- [x] Add a demo endpoint on the same function that runs the four tools against a cached `createDemoStore()` (premium tools allowed on demo data only) and returns their JSON results
+- [x] Build the self-contained landing HTML (inline CSS/JS, no external assets) with buttons that call each tool and render results inline (cash position, reconcile summary + exceptions, forecast gap + daily dip); use a strong `check_payment` query so it returns a confident match
+- [x] Add API Gateway routes for `/` and the demo path in `infra/openapi.yaml.tftpl`
+- [x] write tests: `GET /` returns HTML; the demo endpoint returns the expected results over the fixture (cash 450 000₽, reconcile 6 matched + 3 exception types, forecast gap on 2026-08-12)
+- [x] run project tests, lint, and `npm run build` - all must pass before next task
 
 ### Task 2: Consolidated SETUP.md token & deploy guide
 

@@ -3,6 +3,58 @@ info:
   title: FinContext MCP
   version: 0.1.0
 paths:
+  /:
+    get:
+      summary: Landing page and interactive demo
+      operationId: landing
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: ${function_id}
+        service_account_id: ${service_account_id}
+      responses:
+        "200":
+          description: HTML landing page
+    post:
+      summary: MCP streamable-HTTP JSON-RPC endpoint (root)
+      operationId: mcpRoot
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: ${function_id}
+        service_account_id: ${service_account_id}
+      responses:
+        "200":
+          description: JSON-RPC response
+    options:
+      summary: CORS preflight for the root endpoint
+      operationId: rootPreflight
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: ${function_id}
+        service_account_id: ${service_account_id}
+      responses:
+        "204":
+          description: No content
+  /demo:
+    post:
+      summary: Run a demo tool against the frozen fixture
+      operationId: demo
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: ${function_id}
+        service_account_id: ${service_account_id}
+      responses:
+        "200":
+          description: Demo tool result
+    options:
+      summary: CORS preflight for the demo endpoint
+      operationId: demoPreflight
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: ${function_id}
+        service_account_id: ${service_account_id}
+      responses:
+        "204":
+          description: No content
   /mcp:
     post:
       summary: MCP streamable-HTTP JSON-RPC endpoint
