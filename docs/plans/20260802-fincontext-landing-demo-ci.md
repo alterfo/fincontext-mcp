@@ -51,9 +51,9 @@ Add a public face and release plumbing to the existing FinContext MCP server (M1
 
 ### Task 2: Consolidated SETUP.md token & deploy guide
 
-- [ ] Write `docs/SETUP.md` covering every env/token (Lockbox envs, sandbox vs prod, base-url overrides, prod Lockbox secret wiring, `FINCONTEXT_PRO_KEY`, YC service-account roles), cross-checked against the actual code
-- [ ] Include a demo quickstart (only Tochka sandbox + MoySklad test token, `npm run inspect`) and the production path (`npm run build` → `terraform apply` → Lockbox payload add), linking `docs/DEPLOY.md` and `docs/CONNECTORS.md`
-- [ ] run project tests, lint, and `npm run build` - all must pass before next task
+- [x] Write `docs/SETUP.md` covering every env/token (Lockbox envs, sandbox vs prod, base-url overrides, prod Lockbox secret wiring, `FINCONTEXT_PRO_KEY`, YC service-account roles), cross-checked against the actual code
+- [x] Include a demo quickstart (only Tochka sandbox + MoySklad test token, `npm run inspect`) and the production path (`npm run build` → `terraform apply` → Lockbox payload add), linking `docs/DEPLOY.md` and `docs/CONNECTORS.md`
+- [x] run project tests, lint, and `npm run build` - all must pass before next task
 
 ### Task 3: CI workflow (test + lint + package)
 
