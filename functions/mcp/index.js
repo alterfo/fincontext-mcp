@@ -13,8 +13,13 @@
  */
 
 const { handleMessage, makeError, ERROR } = require('../../src/mcp');
+const { createStore } = require('../../src/ydb');
+const { createOpenHandlers } = require('../../src/handlers');
 
 const JSON_HEADERS = { 'Content-Type': 'application/json' };
+
+const store = createStore();
+const openHandlers = createOpenHandlers(store);
 
 function response(statusCode, bodyObj, extraHeaders) {
   return {
@@ -38,7 +43,8 @@ function decodeBody(event) {
  */
 function buildContext(_event) {
   return {
-    handlers: {},
+    store,
+    handlers: { ...openHandlers },
     // unlockedModules omitted -> all tools visible (Task 1 skeleton).
   };
 }

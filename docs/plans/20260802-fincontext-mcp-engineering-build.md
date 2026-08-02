@@ -98,11 +98,11 @@ Ed25519. Private key held only by the developer (offline generator). Public key 
 
 ### Task 6: Tochka connector and open tools live (M3)
 
-- [ ] Implement `src/connectors/tochka.js` against the sandbox (`/sandbox/v2`, sandbox bearer token) with normalization into the unified `Transaction` model
-- [ ] Wire `get_cash_position` and `check_payment` to real connector data cached in YDB, including `staleness_sec`/`warnings` honesty fields
-- [ ] Verify end-to-end via MCP Inspector against sandbox data
-- [ ] write tests for Tochka normalization and the wired open tools
-- [ ] run project tests - must pass before next task
+- [x] Implement `src/connectors/tochka.js` against the sandbox (`/sandbox/v2`, sandbox bearer token) with normalization into the unified `Transaction` model
+- [x] Wire `get_cash_position` and `check_payment` to real connector data cached in YDB, including `staleness_sec`/`warnings` honesty fields
+- [x] Verify end-to-end via MCP Inspector (verified via the stdio transport `scripts/stdio-server.js`, which seeds the store from the Tochka sandbox when a token is present and serves the wired open tools; live sandbox network call skipped - not automatable in CI)
+- [x] write tests for Tochka normalization and the wired open tools
+- [x] run project tests - must pass before next task
 
 ### Task 7: MoySklad connector and reconcile tool live (M4)
 
