@@ -208,6 +208,31 @@ tr.gap td { color: var(--danger); font-weight: 700; }
 .sec-item h3 { font-size: 16px; }
 .sec-item p { color: var(--muted); font-size: 14px; margin-top: 4px; }
 
+.hero-note { margin-top: 20px; display: flex; gap: 12px; align-items: flex-start; background: var(--surface); border: 1px solid var(--border-2); border-left: 3px solid var(--accent); border-radius: var(--r-m); padding: 14px 16px; font-size: 14px; color: var(--muted); max-width: 560px; }
+.hero-note b { color: var(--text); }
+.hero-note .lk { color: var(--accent); flex: none; }
+
+.arch { margin: 26px 0 30px; }
+.perimeter { position: relative; border: 1.5px dashed var(--accent); border-radius: var(--r-l); padding: 34px 20px 22px; background: rgba(239,49,36,0.04); }
+.perimeter .plabel { position: absolute; top: -12px; left: 18px; background: var(--bg); padding: 2px 12px; font-size: 13px; font-weight: 700; color: var(--accent); display: inline-flex; align-items: center; gap: 6px; border: 1px solid rgba(239,49,36,0.35); border-radius: var(--pill); }
+.flow { display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; }
+.node { background: var(--surface-2); border: 1px solid var(--border-2); border-radius: var(--r-m); padding: 12px 16px; font-size: 14px; font-weight: 600; text-align: center; }
+.node small { display: block; font-weight: 400; color: var(--muted); font-size: 12px; margin-top: 2px; }
+.node.accent { border-color: var(--accent); box-shadow: 0 0 0 1px rgba(239,49,36,0.25); }
+.arrow { color: var(--muted-2); font-size: 20px; }
+.external { margin-top: 16px; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 14px; color: var(--muted); }
+.external .x { color: var(--danger); font-weight: 800; }
+.external .who { text-decoration: line-through; text-decoration-color: var(--danger); }
+
+.compare { width: 100%; border-collapse: collapse; margin: 8px 0 4px; font-size: 14.5px; overflow: hidden; border-radius: var(--r-m); }
+.compare th, .compare td { padding: 13px 16px; text-align: left; border-bottom: 1px solid var(--border); }
+.compare thead th { font-size: 13px; text-transform: uppercase; letter-spacing: 0.3px; color: var(--muted); }
+.compare thead th:last-child { color: var(--accent); }
+.compare td:first-child { color: var(--muted); }
+.compare .no { color: var(--danger); }
+.compare .yes { color: var(--positive); font-weight: 600; }
+.compare-wrap { overflow-x: auto; margin-bottom: 30px; border: 1px solid var(--border); border-radius: var(--r-m); }
+
 .cta { text-align: center; background: var(--surface); border: 1px solid var(--border-2); border-radius: var(--r-xl); padding: 62px 30px; }
 .cta h2 { margin-bottom: 12px; }
 .cta p { color: var(--muted); font-size: 18px; max-width: 580px; margin: 0 auto 28px; }
@@ -241,6 +266,7 @@ const ICON = {
   lock: '<svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>',
   eye: '<svg viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="2.5"/></svg>',
   code: '<svg viewBox="0 0 24 24"><path d="m8 8-4 4 4 4"/><path d="m16 8 4 4-4 4"/><path d="m13 6-2 12"/></svg>',
+  shield: '<svg viewBox="0 0 24 24"><path d="M12 3 5 6v6c0 4 3 6.5 7 9 4-2.5 7-5 7-9V6l-7-3z"/><path d="m9 12 2 2 4-4"/></svg>',
 };
 
 const SCRIPT = `
@@ -410,7 +436,7 @@ const SECURITY = [
   { ico: 'cloud', h: 'Self-hosted в вашем облаке', p: 'Сервер разворачивается в вашем Yandex Cloud одним модулем Terraform. Инфраструктура — ваша.' },
   { ico: 'lock', h: 'Токены в вашем Lockbox', p: 'Ключи от банков и учёта хранятся в вашем защищённом хранилище и наружу не уходят. Посредника нет.' },
   { ico: 'eye', h: 'Только чтение', p: 'Доступ к банкам и учёту — read-only. Посмотреть данные можно, увести деньги — физически нельзя.' },
-  { ico: 'code', h: 'Открытое ядро', p: 'Ядро под Apache-2.0 — код можно проверить и провести аудит безопасности. Никакого чёрного ящика.' },
+  { ico: 'shield', h: 'Открыт для аудита', p: 'Код разворачивается у вас и доступен для проверки вашей службой ИБ или независимым аудитом. Никакого чёрного ящика.' },
 ];
 
 function leadForm(source, buttonText) {
@@ -525,10 +551,11 @@ function landingHtml(demo) {
     'Реальный кэш, статус платежей, автосверка и прогноз кассовых разрывов — на один вопрос, без выгрузок и Excel.</p>' +
     leadForm('hero', 'Получить доступ') +
     '<div class="lead-note">Развернём демо на ваших данных. Без спама — только по делу.</div>' +
+    '<div class="hero-note"><span class="lk">🔒</span><div><b>Это не облачный сервис.</b> FinContext разворачивается в вашем Yandex Cloud: данные и токены банков остаются у вас, у нас доступа к ним нет.</div></div>' +
     '<div class="trust-line">' +
-    '<span><span class="tick">✓</span> Self-hosted</span>' +
-    '<span><span class="tick">✓</span> Данные не покидают ваш контур</span>' +
-    '<span><span class="tick">✓</span> Доступ только на чтение</span>' +
+    '<span><span class="tick">✓</span> Self-hosted в вашем облаке</span>' +
+    '<span><span class="tick">✓</span> Токены в вашем Lockbox</span>' +
+    '<span><span class="tick">✓</span> Только чтение</span>' +
     '</div>' +
     '</div>' +
     heroMock(meta, cashFrom(embedded)) +
@@ -575,9 +602,27 @@ function landingHtml(demo) {
     '</div></section>\n' +
 
     '<section id="security"><div class="wrap"><div class="security">' +
-    '<span class="eyebrow">Безопасность</span>' +
-    '<h2>Ваши данные остаются у вас</h2>' +
-    '<p style="color:var(--muted);font-size:18px;max-width:660px">Доступ к деньгам бизнеса — вопрос доверия. Поэтому FinContext устроен так, что доверять нам ничего не нужно.</p>' +
+    '<span class="eyebrow">Не облачный сервис</span>' +
+    '<h2>Данные не уходят с ваших серверов</h2>' +
+    '<p style="color:var(--muted);font-size:18px;max-width:680px">В отличие от SaaS-сервисов учёта, FinContext не собирает ваши данные у себя. Всё работает внутри вашего периметра — доверять вендору ничего не нужно.</p>' +
+    '<div class="arch">' +
+    '<div class="perimeter"><span class="plabel">🔒 Ваше облако (Yandex Cloud)</span>' +
+    '<div class="flow">' +
+    '<div class="node">Банки и маркетплейсы<small>токены в вашем Lockbox</small></div>' +
+    '<span class="arrow">→</span>' +
+    '<div class="node accent">FinContext MCP<small>работает у вас</small></div>' +
+    '<span class="arrow">→</span>' +
+    '<div class="node">Ваш AI-ассистент<small>ваши вопросы</small></div>' +
+    '</div></div>' +
+    '<div class="external"><span class="x">✕</span> <span class="who">FinContext (разработчик)</span> — доступа к вашим данным и деньгам нет</div>' +
+    '</div>' +
+    '<div class="compare-wrap"><table class="compare"><thead><tr><th>&nbsp;</th><th>Обычный SaaS-сервис</th><th>FinContext</th></tr></thead><tbody>' +
+    '<tr><td>Где хранятся данные</td><td class="no">на серверах вендора</td><td class="yes">в вашем облаке</td></tr>' +
+    '<tr><td>Доступ разработчика к данным</td><td class="no">есть</td><td class="yes">нет</td></tr>' +
+    '<tr><td>Токены банков и учёта</td><td class="no">у вендора</td><td class="yes">в вашем Lockbox</td></tr>' +
+    '<tr><td>Права доступа к счетам</td><td class="no">по-разному</td><td class="yes">только чтение</td></tr>' +
+    '<tr><td>Проверяемость кода</td><td class="no">чёрный ящик</td><td class="yes">открыт для аудита</td></tr>' +
+    '</tbody></table></div>' +
     '<div class="security-grid">' + SECURITY.map(secItem).join('') + '</div>' +
     '</div></div></section>\n' +
 
@@ -589,7 +634,7 @@ function landingHtml(demo) {
 
     '<footer><div class="wrap row">' +
     '<div class="brand"><span class="dot"></span> FinContext</div>' +
-    '<span class="muted">Финансовый контекст для AI-ассистента бизнеса · Self-hosted · Apache-2.0</span>' +
+    '<span class="muted">Финансовый контекст для AI-ассистента бизнеса · Self-hosted · Данные в вашем контуре</span>' +
     '</div></footer>\n' +
 
     '<script>window.__DEMO__ = ' + embedJson(embedded) + ';</script>\n' +
