@@ -46,11 +46,11 @@ own database — nothing more.
 ## Deploy steps
 
 1. Build the function packages (produces `infra/build/mcp.zip` and
-   `infra/build/sync.zip`):
+   `infra/build/sync.zip`). The functions have no runtime dependencies, so the
+   packages contain only `index.js` plus the `src/` tree — no `node_modules`:
 
    ```bash
-   npm ci --omit=dev
-   # zip the handler + src into infra/build/{mcp,sync}.zip
+   npm run build
    ```
 
 2. Configure and apply:
