@@ -83,10 +83,10 @@ Ed25519. Private key held only by the developer (offline generator). Public key 
 
 ### Task 4: Cash-gap forecast engine (M2/M5 domain)
 
-- [ ] Implement `cashgap_forecast` as a pure function: daily projected balances over `horizon_days`, `base`/`conservative` scenarios, optional recurring inflows/outflows
-- [ ] Populate `gap` (will_occur, first_gap_date, min_balance, deficit_amount) and an explicit `assumptions` list
-- [ ] write tests for forecast math and gap detection on synthetic cash-flow series
-- [ ] run project tests - must pass before next task
+- [x] Implement `cashgap_forecast` as a pure function: daily projected balances over `horizon_days`, `base`/`conservative` scenarios, optional recurring inflows/outflows
+- [x] Populate `gap` (will_occur, first_gap_date, min_balance, deficit_amount) and an explicit `assumptions` list
+- [x] write tests for forecast math and gap detection on synthetic cash-flow series
+- [x] run project tests - must pass before next task
 
 ### Task 5: YDB persistence and idempotent sync store
 
