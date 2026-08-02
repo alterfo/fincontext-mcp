@@ -57,10 +57,10 @@ Add a public face and release plumbing to the existing FinContext MCP server (M1
 
 ### Task 3: CI workflow (test + lint + package)
 
-- [ ] Add `.github/workflows/ci.yml` running on push and pull_request: Node 18, `npm ci`, `npm test`, `npm run lint`, `npm run build`
-- [ ] Optionally add a Terraform `fmt -check` + `validate` job for `infra/` via `hashicorp/setup-terraform`
-- [ ] write a test or check asserting the workflow file exists and references the required steps (test, lint, build)
-- [ ] run project tests, lint, and `npm run build` - all must pass before next task
+- [x] Add `.github/workflows/ci.yml` running on push and pull_request: Node 18, `npm ci`, `npm test`, `npm run lint`, `npm run build`
+- [x] Optionally add a Terraform `fmt -check` + `validate` job for `infra/` via `hashicorp/setup-terraform`
+- [x] write a test or check asserting the workflow file exists and references the required steps (test, lint, build)
+- [x] run project tests, lint, and `npm run build` - all must pass before next task
 
 ### Task 4: Verify acceptance criteria
 
