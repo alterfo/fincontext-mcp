@@ -113,10 +113,10 @@ Ed25519. Private key held only by the developer (offline generator). Public key 
 
 ### Task 8: Timer sync and alerts (M5)
 
-- [ ] Implement `functions/sync/index.js` as a timer-triggered incremental pull that refreshes statements/payments into YDB and recomputes cash position/forecast, advancing `sync_state` cursors only after successful persistence
-- [ ] Implement alerts (premium) driven off recomputed positions/forecast
-- [ ] write tests for incremental sync (cursor advance, no duplication) and alert triggering
-- [ ] run project tests - must pass before next task
+- [x] Implement `functions/sync/index.js` as a timer-triggered incremental pull that refreshes statements/payments into YDB and recomputes cash position/forecast, advancing `sync_state` cursors only after successful persistence
+- [x] Implement alerts (premium) driven off recomputed positions/forecast
+- [x] write tests for incremental sync (cursor advance, no duplication) and alert triggering
+- [x] run project tests - must pass before next task
 
 ### Task 9: Offline Pro-key license gating (M5)
 
