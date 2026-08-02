@@ -10,6 +10,17 @@ paths:
       x-yc-apigateway-integration:
         type: cloud_functions
         function_id: ${function_id}
+        service_account_id: ${service_account_id}
       responses:
         "200":
           description: JSON-RPC response
+    options:
+      summary: CORS preflight for the MCP endpoint
+      operationId: mcpPreflight
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: ${function_id}
+        service_account_id: ${service_account_id}
+      responses:
+        "204":
+          description: No content

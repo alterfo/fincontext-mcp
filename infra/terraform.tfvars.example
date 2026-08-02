@@ -1,0 +1,20 @@
+cloud_id  = "b1gxxxxxxxxxxxxxxxxx"
+folder_id = "b1gyyyyyyyyyyyyyyyyy"
+zone      = "ru-central1-a"
+
+function_name    = "fincontext-mcp"
+function_memory  = 256
+function_timeout = 30
+
+mcp_zip_path  = "build/mcp.zip"
+sync_zip_path = "build/sync.zip"
+
+sync_cron       = "0 */1 * * ? *"
+report_currency = "RUB"
+
+tochka_base_url   = "https://enter.tochka.com/sandbox/v2"
+moysklad_base_url = ""
+
+lockbox_token_key = "token"
+
+# pro_key = "eyJ...payload.eyJ...signature"

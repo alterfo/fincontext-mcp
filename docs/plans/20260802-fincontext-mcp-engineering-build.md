@@ -128,10 +128,10 @@ Ed25519. Private key held only by the developer (offline generator). Public key 
 
 ### Task 10: Deliverable Terraform module (client deploy)
 
-- [ ] Flesh out `infra/` into the full deployable module: Functions, API Gateway (OpenAPI), timer trigger, YDB, Lockbox, and a service account with minimal rights
-- [ ] Document the security model (what is stored, what never leaves the client) and MCP-client connection instructions in `README`/`docs/`
-- [ ] write validation for the Terraform module (`validate`/`plan` against a clean catalog config)
-- [ ] run project tests - must pass before next task
+- [x] Flesh out `infra/` into the full deployable module: Functions, API Gateway (OpenAPI), timer trigger, YDB, Lockbox, and a service account with minimal rights
+- [x] Document the security model (what is stored, what never leaves the client) and MCP-client connection instructions in `README`/`docs/` (see `docs/DEPLOY.md`, `infra/README.md`, root `README.md`)
+- [x] write validation for the Terraform module (`validate`/`plan` against a clean catalog config) (static structural validation in `test/infra.test.js`; optional live `terraform validate` runs when the CLI is present — skipped in CI as terraform is not installed)
+- [x] run project tests - must pass before next task
 
 ### Task 11: Verify acceptance criteria
 
