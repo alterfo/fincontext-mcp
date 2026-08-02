@@ -60,14 +60,13 @@ function demoDefaults(tool, meta) {
   }
 }
 
-async function runDemoTool(tool, args) {
+async function runDemoTool(tool) {
   const demo = await getDemo();
   const defaults = demoDefaults(tool, demo.meta);
   if (!defaults) return null;
   const handler = demo.handlers[tool];
   if (typeof handler !== 'function') return null;
-  const merged = { ...defaults, ...(args || {}) };
-  const result = await handler(merged);
+  const result = await handler(defaults);
   return { tool, result };
 }
 
@@ -131,7 +130,12 @@ async function handleDemo(event) {
   } catch (_err) {
     return response(400, { error: 'Parse error: invalid JSON.' }, CORS_HEADERS);
   }
-  const out = await runDemoTool(payload.tool, payload.args);
+  let out;
+  try {
+    out = await runDemoTool(payload.tool);
+  } catch (_err) {
+    return response(500, { error: 'Demo tool failed.' }, CORS_HEADERS);
+  }
   if (!out) {
     return response(404, { error: `Unknown demo tool: ${payload.tool}` }, CORS_HEADERS);
   }
@@ -168,7 +172,7 @@ module.exports.handler = async function handler(event, _context) {
     return htmlResponse(200, landingHtml());
   }
 
-  if (path === '/demo' && (method === 'POST' || method === 'GET')) {
+  if (path === '/demo' && method === 'POST') {
     return handleDemo(event);
   }
 

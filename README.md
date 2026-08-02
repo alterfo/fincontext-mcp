@@ -10,8 +10,12 @@
 
 ## Деплой и модель безопасности
 
-Сервер разворачивается клиентом в своём Yandex Cloud модулем Terraform из [`infra/`](infra). Что хранится, что никогда не покидает облако клиента, инструкции по подключению MCP-клиента и least-privilege сервис-аккаунт — в [`docs/DEPLOY.md`](docs/DEPLOY.md).
+Сервер разворачивается клиентом в своём Yandex Cloud модулем Terraform из [`infra/`](infra). Что хранится, что никогда не покидает облако клиента, инструкции по подключению MCP-клиента и least-privilege сервис-аккаунт — в [`docs/DEPLOY.md`](docs/DEPLOY.md). Все переменные окружения, токены и пошаговый деплой собраны в [`docs/SETUP.md`](docs/SETUP.md).
+
+## Демо
+
+Функция `mcp` отдаёт лендинг на `GET /` с интерактивным демо: четыре инструмента (`get_cash_position`, `check_payment`, `reconcile`, `cashgap_forecast`) вызываются на замороженной фикстуре `src/demo-data.json` (эндпоинт `POST /demo`), реальные токены не нужны.
 
 ## Статус
 
-Инженерная сборка M1–M5: четыре MCP-инструмента, open/premium-разделение, offline Pro-ключ и деплой-модуль Terraform. Локальная проверка — `npm test` и `npm run inspect` (MCP Inspector, без деплоя).
+Инженерная сборка M1–M5: четыре MCP-инструмента, open/premium-разделение, offline Pro-ключ и деплой-модуль Terraform. Плюс лендинг с интерактивным демо на `GET /` и CI (тесты + lint + сборка пакетов). Локальная проверка — `npm test` и `npm run inspect` (MCP Inspector, без деплоя).

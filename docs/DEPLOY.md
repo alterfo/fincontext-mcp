@@ -72,7 +72,7 @@ own database — nothing more.
 
    ```bash
    yc lockbox payload add-version \
-     --id "$(terraform output -raw -json lockbox_secret_ids | jq -r .tochka)" \
+     --id "$(terraform output -json lockbox_secret_ids | jq -r .tochka)" \
      --payload '[{"key":"token","text_value":"<TOCHKA_READONLY_TOKEN>"}]'
    ```
 

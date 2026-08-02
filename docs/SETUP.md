@@ -149,11 +149,11 @@ path:
 
    ```bash
    yc lockbox payload add-version \
-     --id "$(terraform output -raw -json lockbox_secret_ids | jq -r .tochka)" \
+     --id "$(terraform output -json lockbox_secret_ids | jq -r .tochka)" \
      --payload '[{"key":"token","text_value":"<TOCHKA_READONLY_TOKEN>"}]'
 
    yc lockbox payload add-version \
-     --id "$(terraform output -raw -json lockbox_secret_ids | jq -r .moysklad)" \
+     --id "$(terraform output -json lockbox_secret_ids | jq -r .moysklad)" \
      --payload '[{"key":"token","text_value":"<MOYSKLAD_READONLY_TOKEN>"}]'
    ```
 

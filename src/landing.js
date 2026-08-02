@@ -2,6 +2,10 @@
 
 const { demoMeta } = require('./demo');
 
+function escapeHtml(s) {
+  return String(s).replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+}
+
 const STYLE = `
 :root { color-scheme: dark; }
 * { box-sizing: border-box; }
@@ -254,13 +258,13 @@ function landingHtml() {
     'наружу они не уходят, посредника нет.</div>\n' +
     '<h2>Живое демо</h2>\n' +
     '<p class="lede">Четыре инструмента на замороженных данных — реальные токены не нужны.</p>\n' +
-    '<div class="scenario">Сценарий: <strong>' + meta.scenario + '</strong>. ' +
+    '<div class="scenario">Сценарий: <strong>' + escapeHtml(meta.scenario) + '</strong>. ' +
     'Деньги уходят в минус на выплате зарплаты до прихода оптовой оплаты.</div>\n' +
     '<div class="tools">\n' + cards + '\n</div>\n' +
     '<div id="output"></div>\n' +
     '<footer>\n' +
     'Инструменты вызываются на фикстуре <code>src/demo-data.json</code>. ' +
-    'Развёртывание и токены — см. <a href="https://github.com/">docs/SETUP.md</a>.\n' +
+    'Развёртывание и токены — см. <code>docs/SETUP.md</code>.\n' +
     '</footer>\n' +
     '</main>\n' +
     '<script>' + SCRIPT + '</script>\n' +

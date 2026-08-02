@@ -60,7 +60,26 @@ describe('MCP FaaS handler', () => {
     expect(res.headers['Content-Type']).toMatch(/text\/html/);
     expect(res.body).toContain('FinContext MCP');
     expect(res.body).toContain('data-tool="get_cash_position"');
+    expect(res.body).toContain('data-tool="check_payment"');
     expect(res.body).toContain('data-tool="reconcile"');
+    expect(res.body).toContain('data-tool="cashgap_forecast"');
+  });
+
+  test('GET / with a query string still serves the landing HTML', async () => {
+    const res = await handler({ httpMethod: 'GET', path: '/?utm=x' });
+    expect(res.statusCode).toBe(200);
+    expect(res.headers['Content-Type']).toMatch(/text\/html/);
+    expect(res.body).toContain('FinContext MCP');
+  });
+
+  test('routes via requestContext.path when event.path is absent', async () => {
+    const res = await handler({
+      httpMethod: 'POST',
+      requestContext: { path: '/mcp' },
+      body: JSON.stringify({ jsonrpc: '2.0', id: 11, method: 'initialize', params: {} }),
+    });
+    expect(res.statusCode).toBe(200);
+    expect(JSON.parse(res.body).result.serverInfo.name).toBe('fincontext-mcp');
   });
 
   test('unsupported methods are rejected with 405', async () => {
@@ -123,6 +142,18 @@ describe('MCP FaaS handler', () => {
       body: JSON.stringify({ tool: 'nope' }),
     });
     expect(res.statusCode).toBe(404);
+  });
+
+  test('POST /demo with an invalid JSON body returns 400 with CORS headers', async () => {
+    const res = await handler({ httpMethod: 'POST', path: '/demo', body: '{not json' });
+    expect(res.statusCode).toBe(400);
+    expect(JSON.parse(res.body).error).toMatch(/Parse error/);
+    expect(res.headers['Access-Control-Allow-Origin']).toBe('*');
+  });
+
+  test('GET /demo is not routed to the demo handler', async () => {
+    const res = await handler({ httpMethod: 'GET', path: '/demo' });
+    expect(res.statusCode).toBe(405);
   });
 
   test('premium demo tools run without a Pro-key on demo data', async () => {
