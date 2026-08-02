@@ -46,7 +46,7 @@ Direct analog of the Tochka connector: pull accounts + balances + statement line
 
 - **Т-Банк (Бизнес)** — Business API, token from the cabinet, read-only statements. Strong SMB/ИП fit.
 - **Альфа-Банк** — business API exists; heavier onboarding (agreements, sometimes mTLS/certificates).
-- Sber is intentionally out of scope (it ships its own single-vendor MCP — the competitor we are neutral against).
+- **Сбер** — a *desirable but hard* source, not excluded. Sber is our competitor **at the MCP layer** (SberBusiness MCP is the single-vendor wall we are neutral against), but as a **data source** connecting it strengthens the neutral value prop and directly undercuts that wall (their MCP sees only Sber; ours sees everything). Deprioritized purely for practical reasons — gated business-API access and competitive/ToS friction — not on principle. Add it once a usable read-only business API path is confirmed.
 
 Verify exact endpoints/scopes/access terms against each provider's current docs before implementing — bank API access terms vary.
 
