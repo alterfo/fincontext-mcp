@@ -1,6 +1,6 @@
 'use strict';
 
-const { createLockbox, envVarName } = require('../src/lockbox');
+const { createLockbox, lockboxFromEnv, secretsFromEnv, envVarName } = require('../src/lockbox');
 
 describe('lockbox token resolution', () => {
   test('reads a token from the configured Lockbox secret via the injected resolver', async () => {
@@ -56,5 +56,64 @@ describe('lockbox token resolution', () => {
   test('envVarName normalizes source names', () => {
     expect(envVarName('tochka')).toBe('LOCKBOX_TOCHKA_TOKEN');
     expect(envVarName('1c')).toBe('LOCKBOX_1C_TOKEN');
+  });
+});
+
+describe('lockboxFromEnv', () => {
+  test('secretsFromEnv maps LOCKBOX_<SOURCE>_ID vars with the configured key', () => {
+    const secrets = secretsFromEnv({
+      LOCKBOX_TOCHKA_ID: 'sec-tochka',
+      LOCKBOX_MOYSKLAD_ID: 'sec-ms',
+      LOCKBOX_TOKEN_KEY: 'api_token',
+      LOCKBOX_TOCHKA_TOKEN: 'ignored',
+    });
+    expect(secrets).toEqual({
+      tochka: { secret_id: 'sec-tochka', key: 'api_token' },
+      moysklad: { secret_id: 'sec-ms', key: 'api_token' },
+    });
+  });
+
+  test('defaults the entry key to token when LOCKBOX_TOKEN_KEY is unset', () => {
+    expect(secretsFromEnv({ LOCKBOX_TOCHKA_ID: 'sec-tochka' })).toEqual({
+      tochka: { secret_id: 'sec-tochka', key: 'token' },
+    });
+  });
+
+  test('falls back to the env token path when no secret ids are configured', async () => {
+    const lb = lockboxFromEnv({ [envVarName('tochka')]: 'env-token' });
+    expect(await lb.getToken('tochka')).toBe('env-token');
+  });
+
+  test('resolves a token from Lockbox via the metadata IAM token and payload API', async () => {
+    const requests = [];
+    const fetchImpl = async (url, init) => {
+      requests.push({ url, init });
+      if (url.includes('169.254.169.254')) {
+        return { ok: true, json: async () => ({ access_token: 'iam-xyz' }) };
+      }
+      return {
+        ok: true,
+        json: async () => ({ entries: [{ key: 'token', textValue: 'prod-secret' }] }),
+      };
+    };
+    const lb = lockboxFromEnv(
+      { LOCKBOX_TOCHKA_ID: 'sec-tochka', LOCKBOX_TOKEN_KEY: 'token' },
+      { fetchImpl }
+    );
+    expect(await lb.getToken('tochka')).toBe('prod-secret');
+    expect(requests[0].init.headers['Metadata-Flavor']).toBe('Google');
+    expect(requests[1].url).toContain('/lockbox/v1/secrets/sec-tochka/payload');
+    expect(requests[1].init.headers.Authorization).toBe('Bearer iam-xyz');
+  });
+
+  test('propagates a failed Lockbox payload request', async () => {
+    const fetchImpl = async (url) => {
+      if (url.includes('169.254.169.254')) {
+        return { ok: true, json: async () => ({ access_token: 'iam-xyz' }) };
+      }
+      return { ok: false, status: 403, json: async () => ({}) };
+    };
+    const lb = lockboxFromEnv({ LOCKBOX_TOCHKA_ID: 'sec-tochka' }, { fetchImpl });
+    await expect(lb.getToken('tochka')).rejects.toThrow(/payload request failed/i);
   });
 });

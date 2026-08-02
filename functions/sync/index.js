@@ -1,7 +1,7 @@
 'use strict';
 
 const { createStore } = require('../../src/ydb');
-const { createLockbox } = require('../../src/lockbox');
+const { lockboxFromEnv } = require('../../src/lockbox');
 const { createTochkaConnector } = require('../../src/connectors/tochka');
 const { createMoyskladConnector } = require('../../src/connectors/moysklad');
 const { incrementalSync } = require('../../src/sync');
@@ -31,7 +31,7 @@ async function resolveSources(lockbox, factories = CONNECTOR_FACTORIES) {
 }
 
 module.exports.handler = async function handler(_event, _context) {
-  const lockbox = createLockbox();
+  const lockbox = lockboxFromEnv();
   const sources = await resolveSources(lockbox);
   const now = new Date().toISOString();
 
