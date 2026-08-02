@@ -1,17 +1,5 @@
 'use strict';
 
-/**
- * Yandex Cloud Function entrypoint for the MCP server (behind API Gateway).
- *
- * Implements the MCP streamable-HTTP transport in its simplest correct form:
- * a JSON-RPC POST in, a single JSON-RPC response out. SSE streaming is not
- * required for these tools, so a GET (stream open) is answered with 405.
- *
- * The handler is a thin adapter: it parses the HTTP event into a JSON-RPC
- * message and delegates all routing to `src/mcp.js`, which is emulator-free
- * and unit-tested directly.
- */
-
 const { handleMessage, makeError, ERROR } = require('../../src/mcp');
 const { createStore } = require('../../src/ydb');
 const { createOpenHandlers, createPremiumHandlers } = require('../../src/handlers');
@@ -49,10 +37,6 @@ function decodeBody(event) {
   return event.body;
 }
 
-/**
- * Build the per-request MCP context. In later tasks this is where the license
- * (unlockedModules) and tool handlers (backed by YDB/connectors) are injected.
- */
 function buildContext(event) {
   const modules = unlockedModules(proKeyFromEvent(event));
   return {
@@ -74,7 +58,6 @@ module.exports.handler = async function handler(event, _context) {
   }
 
   if (method !== 'POST') {
-    // SSE stream (GET) and other verbs are not supported by this transport.
     return response(405, makeError(null, ERROR.INVALID_REQUEST, 'Only POST is supported.'));
   }
 
@@ -89,7 +72,6 @@ module.exports.handler = async function handler(event, _context) {
   const ctx = buildContext(event);
   const result = await handleMessage(message, ctx);
 
-  // Notifications-only payloads produce no body; MCP allows a 202 Accepted.
   if (result === null) {
     return response(202, null);
   }

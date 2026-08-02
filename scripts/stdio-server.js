@@ -1,17 +1,6 @@
 #!/usr/bin/env node
 'use strict';
 
-/**
- * MCP stdio transport for local verification with MCP Inspector:
- *
- *   npx @modelcontextprotocol/inspector node scripts/stdio-server.js
- *
- * Reads newline-delimited JSON-RPC messages on stdin and writes newline-
- * delimited JSON-RPC responses on stdout. All routing is delegated to
- * `src/mcp.js`; this file is just the stdio adapter (mirror of the FaaS
- * HTTP adapter in `functions/mcp/index.js`).
- */
-
 const readline = require('readline');
 const { handleMessage, makeError, ERROR } = require('../src/mcp');
 const { createStore } = require('../src/ydb');

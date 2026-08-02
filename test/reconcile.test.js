@@ -178,7 +178,7 @@ describe('computeCashPosition', () => {
       c.bank.statement.closing_balance + other.bank.statement.closing_balance
     );
     expect(pos.by_account).toHaveLength(2);
-    expect(pos.by_account[0].staleness_sec).toBe(86400); // one day
+    expect(pos.by_account[0].staleness_sec).toBe(86400);
     expect(pos.by_account[1].bank).toBe('tochka');
   });
 
@@ -217,7 +217,6 @@ describe('computeCashPosition', () => {
       ],
     });
 
-    // Pending excluded from the cleared balance.
     expect(pos.by_account[0].amount).toBe(opening + signedAmount(posted));
     expect(pos.warnings.some((w) => /pending/.test(w))).toBe(true);
   });

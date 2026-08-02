@@ -14,7 +14,6 @@ describe('lockbox token resolution', () => {
       resolver,
     });
     expect(await lb.getToken('tochka')).toBe('sandbox.jwt.token');
-    // Cached: a second read does not re-hit the resolver.
     expect(await lb.getToken('tochka')).toBe('sandbox.jwt.token');
     expect(calls).toEqual(['sec-tochka']);
   });

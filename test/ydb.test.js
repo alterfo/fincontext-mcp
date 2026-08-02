@@ -11,25 +11,19 @@ describe('idempotent transaction persistence', () => {
     const txns = c.bank.transactions;
 
     const first = await store.putTransactions(txns);
-    // The synthetic case carries one duplicate line (identical native id -> same id),
-    // which PUT-by-id collapses on first insert already.
     const stored1 = await store.listTransactions();
 
     const second = await store.putTransactions(txns);
     const stored2 = await store.listTransactions();
 
-    // A full replay adds zero rows.
     expect(stored2).toHaveLength(stored1.length);
-    // Every line on the second pass is an idempotent replace, never a new insert.
     expect(second.inserted).toBe(0);
     expect(second.replaced + second.duplicates).toBe(txns.length);
-    // First pass inserted every distinct id exactly once.
     expect(first.inserted).toBeGreaterThan(0);
   });
 
   test('a different id with an already-seen dedup_key is reported as duplicate and not stored', async () => {
     const store = createStore();
-    // No native_id -> id derives from (source, account_id, null) and dedup_key from content.
     const base = {
       source: 'tochka',
       kind: 'bank',
@@ -89,7 +83,6 @@ describe('sync_state cursor advances only after persistence', () => {
     expect(state.cursor).toBe('2026-01-31T00:00:00.000Z');
     const count1 = (await store.listTransactions()).length;
 
-    // Replay the same window with an advanced cursor: no duplication, cursor moves.
     const r2 = await store.syncBatch({
       source: 'moysklad',
       account_id: c.ledger.statement.account_id,
@@ -107,7 +100,6 @@ describe('sync_state cursor advances only after persistence', () => {
   test('cursor is NOT advanced when persistence fails', async () => {
     const backend = createMemoryBackend();
     const store = createStore({ backend });
-    // Force a persistence failure on the transactions table only.
     const realPut = backend.put;
     backend.put = async (table, pk, row) => {
       if (table === 'transactions') throw new Error('boom');
@@ -183,12 +175,10 @@ describe('position materialization', () => {
     expect(agg.forecast_inputs.current_position).toBe(expectedTotal);
     expect(agg.forecast_inputs.by_account).toHaveLength(2);
 
-    // Per-account row persisted and readable.
     const row = await store.getPosition(c1.bank.statement.account_id);
     expect(row.balance).toBe(c1.bank.statement.closing_balance);
     expect(row.as_of).toBe('2026-03-01T00:00:00.000Z');
 
-    // Aggregate readable via convenience getters.
     expect((await store.getCashPosition()).totals.RUB).toBe(expectedTotal);
     expect((await store.getForecastInputs()).current_position).toBe(expectedTotal);
   });
@@ -201,7 +191,6 @@ describe('position materialization', () => {
     await store.putTransactions(c.bank.transactions);
 
     const a1 = await store.materializePositions({ as_of: '2026-03-01T00:00:00.000Z' });
-    // Replay the same transactions, then re-materialize.
     await store.putTransactions(c.bank.transactions);
     const a2 = await store.materializePositions({ as_of: '2026-03-01T00:00:00.000Z' });
 

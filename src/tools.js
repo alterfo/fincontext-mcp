@@ -1,17 +1,5 @@
 'use strict';
 
-/**
- * MCP tool catalog for FinContext.
- *
- * Each entry carries the public tool `name`, human `description`, the JSON Schema
- * `inputSchema` advertised in `tools/list`, and a `premium` flag. Premium tools are
- * present in this catalog but only surfaced in `tools/list` when the caller holds a
- * valid Pro-key that unlocks the matching module (gating lands in Task 9).
- *
- * Contracts mirror docs/plans "MCP tool contracts". Amounts are integer kopecks;
- * sign is carried by `direction`, never by a negative amount.
- */
-
 const MONEY = {
   type: 'object',
   properties: {
@@ -145,7 +133,6 @@ const TOOLS = [
   },
 ];
 
-/** Shape advertised in `tools/list` (name, description, inputSchema). */
 function toListEntry(tool) {
   return {
     name: tool.name,
@@ -154,7 +141,6 @@ function toListEntry(tool) {
   };
 }
 
-/** Look up a tool definition by name. */
 function getTool(name) {
   return TOOLS.find((t) => t.name === name);
 }

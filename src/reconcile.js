@@ -1,32 +1,13 @@
 'use strict';
 
-/**
- * Reconcile domain core — the M2 moat.
- *
- * Pure, I/O-free functions over the normalized `Transaction` model (see
- * `src/model.js`). Everything here is unit-testable with Jest against the
- * synthetic fixtures from `src/synthetic.js` (there is no local Yandex Cloud
- * emulator, so domain logic never touches the FaaS handlers).
- *
- * Three tools live here:
- *   - `computeCashPosition` — real cash across accounts (open tool `get_cash_position`).
- *   - `reconcile`           — bank-statement ↔ ledger matching (premium tool `reconcile`).
- *   - `checkPayment`        — did a payment clear/pend/not-arrive (open tool `check_payment`).
- *
- * Money is ALWAYS integer minor units (kopecks), non-negative, sign carried by
- * `direction`. No floats anywhere in the arithmetic.
- */
-
 const { signedAmount, DEFAULT_CURRENCY } = require('./model');
 
-/** ms since epoch for an ISO date/date-time string; null when unparseable. */
 function toMs(iso) {
   if (!iso) return null;
   const ms = Date.parse(iso);
   return Number.isNaN(ms) ? null : ms;
 }
 
-/** Whole-day absolute distance between two ISO timestamps (0 when either missing). */
 function daysBetween(a, b) {
   const am = toMs(a);
   const bm = toMs(b);
@@ -34,28 +15,11 @@ function daysBetween(a, b) {
   return Math.round(Math.abs(am - bm) / 86400000);
 }
 
-/**
- * Cash position across accounts.
- *
- * @param {object} input
- * @param {string} [input.as_of]        Report point-in-time; defaults to the freshest `updated_at`.
- * @param {string} [input.currency]     Report currency (ISO-4217); defaults to `RUB`.
- * @param {Array}  input.accounts       `[{account_id, source, opening_balance?, closing_balance?,
- *                                        transactions?, currency?, updated_at?}]`.
- *
- * The cleared balance is `closing_balance` when known, else
- * `opening_balance + Σ signed(posted lines)` — pending/hold lines are excluded
- * from cash and instead surface a warning. Accounts in a currency other than the
- * requested one are excluded from `total` and flagged.
- *
- * @returns {{as_of, total:{amount,currency}, by_account:Array, warnings:string[]}}
- */
 function computeCashPosition(input = {}) {
   const currency = input.currency || DEFAULT_CURRENCY;
   const accounts = input.accounts || [];
   const warnings = [];
 
-  // Default as_of to the freshest account timestamp so staleness is deterministic.
   let asOf = input.as_of || null;
   if (!asOf) {
     let maxMs = null;
@@ -118,11 +82,6 @@ function computeCashPosition(input = {}) {
   };
 }
 
-/**
- * Reconcile a link key groups a bank line and its ledger counterpart together
- * despite differing amounts (partial/mismatch). Amount MUST NOT be part of the
- * key. Prefer the strongest stable reference the line carries.
- */
 function linkKey(tx) {
   const cp = tx.counterparty || {};
   if (tx.uin) return `uin:${tx.direction}:${tx.uin}`;
@@ -131,7 +90,6 @@ function linkKey(tx) {
   return `p:${tx.direction}:${tx.purpose || ''}`;
 }
 
-/** Collapse exact replays (same `dedup_key`) on one side; extras become duplicates. */
 function dedup(txns, side, exceptions) {
   const seen = new Map();
   const kept = [];
@@ -152,27 +110,6 @@ function dedup(txns, side, exceptions) {
   return kept;
 }
 
-/**
- * Reconcile a bank statement against a ledger for a period.
- *
- * @param {object} input
- * @param {Array}  input.bank      Normalized bank `Transaction`s.
- * @param {Array}  input.ledger    Normalized ledger `Transaction`s.
- * @param {object} [input.tolerance] `{amount_minor=0, days=0}` — differences within
- *                                    tolerance still count as matched (`match_type:"tolerance"`).
- *
- * Matching links each side by `linkKey` (a stable reference, never the amount),
- * then classifies each group:
- *   1 bank ↔ 1 ledger, equal within tolerance   → matched
- *   1 bank ↔ 1 ledger, bank < ledger            → partial_payment
- *   1 bank ↔ 1 ledger, bank > ledger            → amount_mismatch
- *   1 bank ↔ 0 ledger                           → missing_in_ledger
- *   0 bank ↔ 1 ledger                           → missing_in_bank
- *   many ↔ one (or many ↔ many)                 → purpose_ambiguous
- * Exact replays (same dedup_key) are pulled out as `duplicate` beforehand.
- *
- * @returns {{summary, matched:Array, exceptions:Array}}
- */
 function reconcile(input = {}) {
   const tolerance = {
     amount_minor: (input.tolerance && input.tolerance.amount_minor) || 0,
@@ -252,12 +189,10 @@ function reconcile(input = {}) {
         });
       }
     } else {
-      // many-to-one / many-to-many: cannot decide which line clears which.
       exceptions.push({
         type: 'purpose_ambiguous',
         bank_txn_ids: b.map((tx) => tx.id),
         ledger_entry_ids: l.map((tx) => tx.id),
-        // Convenience singular ids when exactly one side is single (mirrors fixtures).
         ...(l.length === 1 ? { ledger_entry_id: l[0].id } : {}),
         ...(b.length === 1 ? { bank_txn_id: b[0].id } : {}),
         suggestion:
@@ -280,7 +215,6 @@ function reconcile(input = {}) {
   return { summary, matched, exceptions };
 }
 
-/** Weighted contribution of each query field to a `check_payment` confidence score. */
 const FIELD_WEIGHTS = {
   uin: 0.6,
   doc_number: 0.5,
@@ -291,22 +225,6 @@ const FIELD_WEIGHTS = {
 
 const CONFIDENCE_THRESHOLD = 0.5;
 
-/**
- * Did a payment clear, is it still pending, or is it nowhere to be found?
- *
- * @param {Array}  transactions   Normalized `Transaction`s to search.
- * @param {object} query          `{amount?, counterparty_inn?, purpose_contains?, doc_number?,
- *                                  uin?, date_from?, date_to?}`.
- *
- * `date_from`/`date_to` are a hard window on `booked_at`. Identity fields are
- * fuzzy: a candidate must match at least one, and its confidence is the summed
- * weight of the fields it satisfies (capped at 1) — so more matching identity
- * fields means a more specific, higher-confidence hit. `found` when a posted
- * candidate clears the confidence threshold, `pending` when only pending/hold
- * ones do, else `not_found`.
- *
- * @returns {{status, matches:Array, explanation:string}}
- */
 function checkPayment(transactions = [], query = {}) {
   const providedFields = Object.keys(FIELD_WEIGHTS).filter(
     (f) => query[f] !== undefined && query[f] !== null && query[f] !== ''

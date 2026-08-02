@@ -1,22 +1,7 @@
 'use strict';
 
-/**
- * Synthetic data generator — the M2 test moat.
- *
- * Emits paired bank statements and ledger entries carrying pre-computed, KNOWN
- * discrepancies, plus an expected-output fixture describing the ground truth so
- * the reconcile/cash-position/check_payment core (Task 3) can be asserted against
- * exact answers. Everything is deterministic given a `seed`, so fixtures are
- * reproducible and diff-stable across runs (no wall-clock, no RNG entropy).
- *
- * The six discrepancy `type`s mirror the reconcile exception contract:
- *   missing_in_ledger, missing_in_bank, amount_mismatch,
- *   partial_payment, duplicate, purpose_ambiguous
- */
-
 const { makeTransaction, makeStatement, signedAmount, DEFAULT_CURRENCY } = require('./model');
 
-/** Deterministic PRNG (mulberry32) so generated data is reproducible per seed. */
 function mulberry32(seed) {
   let a = seed >>> 0;
   return function next() {
@@ -28,7 +13,6 @@ function mulberry32(seed) {
   };
 }
 
-/** Add `days` to a `YYYY-MM-DD` base, returning an ISO date-time (UTC midnight). */
 function addDays(baseDate, days) {
   const [y, m, d] = baseDate.split('-').map(Number);
   const ms = Date.UTC(y, m - 1, d) + days * 86400000;
@@ -43,10 +27,6 @@ const COUNTERPARTIES = [
   { name: 'OOO Logistika', inn: '7704567890', bic: '044525974' },
 ];
 
-/**
- * Default mix of situations. Each entry produces one reconciliation situation of
- * the named `type`. `direction` is the movement direction on the BANK side.
- */
 const DEFAULT_SPECS = [
   { type: 'matched', amount: 1500000, direction: 'out' },
   { type: 'matched', amount: 2500000, direction: 'in' },
@@ -59,19 +39,6 @@ const DEFAULT_SPECS = [
   { type: 'purpose_ambiguous', amount: 800000, direction: 'out' },
 ];
 
-/**
- * Generate one synthetic bank↔ledger case.
- *
- * @param {object} [opts]
- * @param {number} [opts.seed=1]         PRNG seed (reproducibility).
- * @param {string} [opts.baseDate]       `YYYY-MM-DD` start of the period.
- * @param {string} [opts.bankSource]     bank connector name (default `tochka`).
- * @param {string} [opts.ledgerSource]   ledger connector name (default `moysklad`).
- * @param {string} [opts.accountId]      bank account id.
- * @param {number} [opts.openingBalance] opening bank balance in kopecks.
- * @param {Array}  [opts.specs]          override the situation mix.
- * @returns {{bank, ledger, expected, meta}}
- */
 function generateCase(opts = {}) {
   const seed = opts.seed || 1;
   const rnd = mulberry32(seed);
@@ -91,7 +58,7 @@ function generateCase(opts = {}) {
   let dayCursor = 1;
   specs.forEach((spec, i) => {
     const cp = COUNTERPARTIES[Math.floor(rnd() * COUNTERPARTIES.length)];
-    const day = dayCursor + Math.floor(rnd() * 2); // spread lines across the period
+    const day = dayCursor + Math.floor(rnd() * 2);
     dayCursor += 3;
     const bookedAt = addDays(baseDate, day);
     const docNumber = String(1000 + i);
@@ -157,7 +124,6 @@ function generateCase(opts = {}) {
         break;
       }
       case 'partial_payment': {
-        // Ledger expects the full amount; the bank shows one partial payment.
         const b = makeTransaction({ ...bankBase, amount: spec.paid, native_id: `b-${i}` });
         const l = makeTransaction({ ...ledgerBase, amount: spec.amount, native_id: `l-${i}` });
         bankTxns.push(b);
@@ -171,19 +137,16 @@ function generateCase(opts = {}) {
         break;
       }
       case 'duplicate': {
-        // Same bank operation persisted twice (identical native id → same dedup_key).
         const b1 = makeTransaction({ ...bankBase, amount: spec.amount, native_id: `b-${i}` });
         const b2 = makeTransaction({ ...bankBase, amount: spec.amount, native_id: `b-${i}` });
         const l = makeTransaction({ ...ledgerBase, amount: spec.amount, native_id: `l-${i}` });
         bankTxns.push(b1, b2);
         ledgerTxns.push(l);
-        // One real match; the second identical line is the duplicate exception.
         matched.push({ bank_txn_id: b1.id, ledger_entry_id: l.id, amount: spec.amount, match_type: 'exact' });
         exceptions.push({ type: 'duplicate', bank_txn_id: b2.id, dedup_key: b2.dedup_key });
         break;
       }
       case 'purpose_ambiguous': {
-        // Two identical bank lines, one ledger entry: which one clears it is ambiguous.
         const b1 = makeTransaction({ ...bankBase, amount: spec.amount, native_id: `b-${i}a` });
         const b2 = makeTransaction({ ...bankBase, amount: spec.amount, native_id: `b-${i}b` });
         const l = makeTransaction({ ...ledgerBase, amount: spec.amount, native_id: `l-${i}` });

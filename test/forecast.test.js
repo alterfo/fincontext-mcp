@@ -39,7 +39,6 @@ describe('cashgap_forecast — projection math', () => {
       ],
     });
     const balances = out.daily.map((d) => d.projected_balance);
-    // 100000 -30000 => 70000; +50000 => 120000; -20000 => 100000; flat => 100000
     expect(balances).toEqual([70000, 120000, 100000, 100000]);
     expect(out.daily[0].outflows).toBe(30000);
     expect(out.daily[1].inflows).toBe(50000);
@@ -51,8 +50,8 @@ describe('cashgap_forecast — projection math', () => {
       current_position: 100000,
       horizon_days: 2,
       scheduled: [
-        { date: '2025-12-31', direction: 'out', amount: 999999 }, // before start
-        { date: '2026-02-01', direction: 'out', amount: 999999 }, // past horizon
+        { date: '2025-12-31', direction: 'out', amount: 999999 },
+        { date: '2026-02-01', direction: 'out', amount: 999999 },
       ],
     });
     expect(out.daily.every((d) => d.projected_balance === 100000)).toBe(true);
@@ -66,9 +65,9 @@ describe('cashgap_forecast — gap detection', () => {
       current_position: 40000,
       horizon_days: 4,
       scheduled: [
-        { date: '2026-03-02', direction: 'out', amount: 50000 }, // -10000 (gap)
-        { date: '2026-03-03', direction: 'out', amount: 30000 }, // -40000 (deepest)
-        { date: '2026-03-04', direction: 'in', amount: 100000 }, // +60000 (recovers)
+        { date: '2026-03-02', direction: 'out', amount: 50000 },
+        { date: '2026-03-03', direction: 'out', amount: 30000 },
+        { date: '2026-03-04', direction: 'in', amount: 100000 },
       ],
     });
     expect(out.gap.will_occur).toBe(true);
@@ -101,7 +100,6 @@ describe('cashgap_forecast — recurring flows', () => {
 
   test('day_of_month rules fire on that calendar day each month', () => {
     const days = expandRecurring({ direction: 'in', amount: 1, day_of_month: 10 }, '2026-01-01', 70);
-    // 2026-01-10 (d=9), 2026-02-10 (d=40), 2026-03-10 (d=68)
     expect(days).toEqual([9, 40, 68]);
   });
 
@@ -137,7 +135,6 @@ describe('cashgap_forecast — recurring flows', () => {
     };
     const withRec = cashgapForecast(base);
     const withoutRec = cashgapForecast({ ...base, include_recurring: false });
-    // Two payments of 10000 land on day 7 and 14.
     expect(withRec.daily[13].projected_balance).toBe(80000);
     expect(withoutRec.daily[13].projected_balance).toBe(100000);
   });
@@ -167,7 +164,6 @@ describe('cashgap_forecast — scenarios', () => {
       scenario: 'conservative',
       scheduled,
     });
-    // Default: +3 days delay, 10% haircut => lands 2026-01-08 at 90000.
     const original = out.daily.find((d) => d.date === '2026-01-05');
     const delayed = out.daily.find((d) => d.date === '2026-01-08');
     expect(original.inflows).toBe(0);
@@ -182,14 +178,13 @@ describe('cashgap_forecast — scenarios', () => {
       current_position: 20000,
       horizon_days: 6,
       scheduled: [
-        { date: '2026-01-03', direction: 'in', amount: 40000 }, // covers the outflow in base
+        { date: '2026-01-03', direction: 'in', amount: 40000 },
         { date: '2026-01-04', direction: 'out', amount: 50000 },
       ],
     };
     const base = cashgapForecast({ ...common, scenario: 'base' });
     const cons = cashgapForecast({ ...common, scenario: 'conservative' });
     expect(base.gap.will_occur).toBe(false);
-    // Inflow slips past the outflow day and shrinks => balance dips negative.
     expect(cons.gap.will_occur).toBe(true);
     expect(cons.gap.first_gap_date).toBe('2026-01-04');
   });

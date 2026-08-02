@@ -13,7 +13,6 @@ describe('generateCase determinism', () => {
   test('different seed => different data', () => {
     const a = generateCase({ seed: 1 });
     const b = generateCase({ seed: 2 });
-    // counterparties are seed-driven, so at least one line differs
     expect(JSON.stringify(a.bank.transactions)).not.toBe(JSON.stringify(b.bank.transactions));
   });
 });
@@ -73,7 +72,7 @@ describe('discrepancy shapes', () => {
     const dup = byType('duplicate')[0];
     const dupLines = c.bank.transactions.filter((tx) => tx.dedup_key === dup.dedup_key);
     expect(dupLines).toHaveLength(2);
-    expect(dupLines[0].id).toBe(dupLines[1].id); // identical native_id => identical id
+    expect(dupLines[0].id).toBe(dupLines[1].id);
   });
 
   test('amount_mismatch: delta equals bank − ledger amount', () => {
