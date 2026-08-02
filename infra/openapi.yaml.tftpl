@@ -55,6 +55,27 @@ paths:
       responses:
         "204":
           description: No content
+  /lead:
+    post:
+      summary: Capture a contact/demo-request email from the landing page
+      operationId: lead
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: ${function_id}
+        service_account_id: ${service_account_id}
+      responses:
+        "200":
+          description: Lead accepted
+    options:
+      summary: CORS preflight for the lead endpoint
+      operationId: leadPreflight
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: ${function_id}
+        service_account_id: ${service_account_id}
+      responses:
+        "204":
+          description: No content
   /mcp:
     post:
       summary: MCP streamable-HTTP JSON-RPC endpoint

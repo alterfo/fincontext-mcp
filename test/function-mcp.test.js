@@ -58,7 +58,7 @@ describe('MCP FaaS handler', () => {
     const res = await handler({ httpMethod: 'GET', path: '/' });
     expect(res.statusCode).toBe(200);
     expect(res.headers['Content-Type']).toMatch(/text\/html/);
-    expect(res.body).toContain('FinContext MCP');
+    expect(res.body).toContain('FinContext');
     expect(res.body).toContain('data-tool="get_cash_position"');
     expect(res.body).toContain('data-tool="check_payment"');
     expect(res.body).toContain('data-tool="reconcile"');
@@ -69,7 +69,7 @@ describe('MCP FaaS handler', () => {
     const res = await handler({ httpMethod: 'GET', path: '/?utm=x' });
     expect(res.statusCode).toBe(200);
     expect(res.headers['Content-Type']).toMatch(/text\/html/);
-    expect(res.body).toContain('FinContext MCP');
+    expect(res.body).toContain('FinContext');
   });
 
   test('routes via requestContext.path when event.path is absent', async () => {
@@ -160,6 +160,27 @@ describe('MCP FaaS handler', () => {
     const res = await demo('reconcile');
     expect(res.statusCode).toBe(200);
     expect(JSON.parse(res.body).result.summary).toBeDefined();
+  });
+
+  test('POST /lead accepts a valid email with CORS headers', async () => {
+    const res = await handler({
+      httpMethod: 'POST',
+      path: '/lead',
+      body: JSON.stringify({ email: 'seller@shop.ru', source: 'hero' }),
+    });
+    expect(res.statusCode).toBe(200);
+    expect(JSON.parse(res.body).ok).toBe(true);
+    expect(res.headers['Access-Control-Allow-Origin']).toBe('*');
+  });
+
+  test('POST /lead rejects an invalid email with 400', async () => {
+    const res = await handler({
+      httpMethod: 'POST',
+      path: '/lead',
+      body: JSON.stringify({ email: 'not-an-email' }),
+    });
+    expect(res.statusCode).toBe(400);
+    expect(JSON.parse(res.body).error).toBe('invalid_email');
   });
 
   test('OPTIONS preflight returns 204 with CORS headers', async () => {

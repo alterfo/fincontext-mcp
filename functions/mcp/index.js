@@ -70,6 +70,30 @@ async function runDemoTool(tool) {
   return { tool, result };
 }
 
+const DEMO_TOOLS = ['get_cash_position', 'check_payment', 'reconcile', 'cashgap_forecast'];
+
+async function collectDemo() {
+  const demo = await getDemo();
+  const results = {};
+  for (const tool of DEMO_TOOLS) {
+    try {
+      const out = await runDemoTool(tool);
+      if (out) results[tool] = out.result;
+    } catch (_err) {
+      continue;
+    }
+  }
+  return { meta: demo.meta, results };
+}
+
+function isEmail(value) {
+  return typeof value === 'string' && value.length <= 254 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+}
+
+function clampStr(value, max) {
+  return typeof value === 'string' ? value.trim().slice(0, max) : null;
+}
+
 function proKeyFromEvent(event) {
   const headers = (event && event.headers) || {};
   return (
@@ -142,6 +166,28 @@ async function handleDemo(event) {
   return response(200, out, CORS_HEADERS);
 }
 
+async function handleLead(event) {
+  let payload;
+  try {
+    const raw = decodeBody(event);
+    payload = raw ? JSON.parse(raw) : {};
+  } catch (_err) {
+    return response(400, { ok: false, error: 'Parse error: invalid JSON.' }, CORS_HEADERS);
+  }
+  const email = clampStr(payload.email, 254);
+  if (!isEmail(email)) {
+    return response(400, { ok: false, error: 'invalid_email' }, CORS_HEADERS);
+  }
+  const lead = {
+    email,
+    company: clampStr(payload.company, 200),
+    message: clampStr(payload.message, 1000),
+    source: clampStr(payload.source, 80),
+  };
+  console.log(`[LEAD] ${JSON.stringify(lead)}`);
+  return response(200, { ok: true }, CORS_HEADERS);
+}
+
 async function handleJsonRpc(event) {
   let message;
   try {
@@ -169,11 +215,16 @@ module.exports.handler = async function handler(event, _context) {
   }
 
   if (method === 'GET' && path === '/') {
-    return htmlResponse(200, landingHtml());
+    const demo = await collectDemo();
+    return htmlResponse(200, landingHtml(demo));
   }
 
   if (path === '/demo' && method === 'POST') {
     return handleDemo(event);
+  }
+
+  if (path === '/lead' && method === 'POST') {
+    return handleLead(event);
   }
 
   if (method === 'POST') {

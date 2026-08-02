@@ -83,9 +83,10 @@ resource "yandex_function" "mcp" {
 
   user_hash = filebase64sha256("${path.module}/${var.mcp_zip_path}")
 
-  environment = merge(local.base_environment, {
-    FINCONTEXT_PRO_KEY = var.pro_key
-  })
+  environment = merge(
+    local.base_environment,
+    var.pro_key != "" ? { FINCONTEXT_PRO_KEY = var.pro_key } : {},
+  )
 
   content {
     zip_filename = "${path.module}/${var.mcp_zip_path}"
@@ -105,11 +106,12 @@ resource "yandex_function" "sync" {
 
   user_hash = filebase64sha256("${path.module}/${var.sync_zip_path}")
 
-  environment = merge(local.base_environment, {
-    FINCONTEXT_PRO_KEY = var.pro_key
-    TOCHKA_BASE_URL    = var.tochka_base_url
-    MOYSKLAD_BASE_URL  = var.moysklad_base_url
-  })
+  environment = merge(
+    local.base_environment,
+    { TOCHKA_BASE_URL = var.tochka_base_url },
+    var.pro_key != "" ? { FINCONTEXT_PRO_KEY = var.pro_key } : {},
+    var.moysklad_base_url != "" ? { MOYSKLAD_BASE_URL = var.moysklad_base_url } : {},
+  )
 
   content {
     zip_filename = "${path.module}/${var.sync_zip_path}"
