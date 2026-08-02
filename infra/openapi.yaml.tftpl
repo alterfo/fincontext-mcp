@@ -1,0 +1,15 @@
+openapi: 3.0.0
+info:
+  title: FinContext MCP
+  version: 0.1.0
+paths:
+  /mcp:
+    post:
+      summary: MCP streamable-HTTP JSON-RPC endpoint
+      operationId: mcp
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: ${function_id}
+      responses:
+        "200":
+          description: JSON-RPC response

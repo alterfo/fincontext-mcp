@@ -57,13 +57,13 @@ Ed25519. Private key held only by the developer (offline generator). Public key 
 
 ### Task 1: Repo scaffold and MCP skeleton (M1)
 
-- [ ] Initialize the JS project (package manifest, Jest, lint config) and the `src/` + `functions/` + `infra/` layout from Context
-- [ ] Implement `functions/mcp/index.js` as the streamable-HTTP JSON-RPC handler and `src/mcp.js` for tool registration and routing
-- [ ] Answer `initialize` and `tools/list` (return the four tool definitions with JSON Schema `inputSchema`; premium tools present but flagged)
-- [ ] Add a minimal `infra/` Terraform skeleton (`yandex` provider, function + API Gateway with OpenAPI) — parse/plan-level only, no live deploy required
-- [ ] Verify locally with MCP Inspector that `initialize` and `tools/list` respond correctly
-- [ ] write tests for JSON-RPC routing and `tools/list` output
-- [ ] run project tests - must pass before next task
+- [x] Initialize the JS project (package manifest, Jest, lint config) and the `src/` + `functions/` + `infra/` layout from Context
+- [x] Implement `functions/mcp/index.js` as the streamable-HTTP JSON-RPC handler and `src/mcp.js` for tool registration and routing
+- [x] Answer `initialize` and `tools/list` (return the four tool definitions with JSON Schema `inputSchema`; premium tools present but flagged)
+- [x] Add a minimal `infra/` Terraform skeleton (`yandex` provider, function + API Gateway with OpenAPI) — parse/plan-level only, no live deploy required
+- [x] Verify locally with MCP Inspector that `initialize` and `tools/list` respond correctly (verified via the stdio transport in `scripts/stdio-server.js`, which is what MCP Inspector drives)
+- [x] write tests for JSON-RPC routing and `tools/list` output
+- [x] run project tests - must pass before next task
 
 ### Task 2: Normalized data model and synthetic generator (M2 foundation)
 
