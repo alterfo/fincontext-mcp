@@ -90,11 +90,11 @@ Ed25519. Private key held only by the developer (offline generator). Public key 
 
 ### Task 5: YDB persistence and idempotent sync store
 
-- [ ] Implement `src/ydb.js` with the `accounts`, `transactions`, `statements`, `reconcile_runs`, `sync_state`, and `positions` tables and access helpers
-- [ ] Implement dedup/idempotency (`dedup_key`, `PUT` by `id`) and materialization of `positions` (cash position + forecast inputs)
-- [ ] Implement `src/lockbox.js` to read bank/accounting tokens from the client's Lockbox
-- [ ] write tests for dedup (re-run must not double-count) and position materialization
-- [ ] run project tests - must pass before next task
+- [x] Implement `src/ydb.js` with the `accounts`, `transactions`, `statements`, `reconcile_runs`, `sync_state`, and `positions` tables and access helpers
+- [x] Implement dedup/idempotency (`dedup_key`, `PUT` by `id`) and materialization of `positions` (cash position + forecast inputs)
+- [x] Implement `src/lockbox.js` to read bank/accounting tokens from the client's Lockbox
+- [x] write tests for dedup (re-run must not double-count) and position materialization
+- [x] run project tests - must pass before next task
 
 ### Task 6: Tochka connector and open tools live (M3)
 
