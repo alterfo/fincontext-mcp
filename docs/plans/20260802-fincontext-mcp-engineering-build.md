@@ -75,11 +75,11 @@ Ed25519. Private key held only by the developer (offline generator). Public key 
 
 ### Task 3: Reconcile domain core on synthetics (M2)
 
-- [ ] Implement `src/reconcile.js` cash-position aggregation across accounts as a pure function
-- [ ] Implement `reconcile` as a pure function producing `summary`, `matched`, and `exceptions` with all six exception `type`s, honoring `tolerance`
-- [ ] Implement `check_payment` matching logic (`found`/`pending`/`not_found` with confidence and explanation) over the normalized model
-- [ ] write tests driving `reconcile`/cash-position/`check_payment` against the synthetic fixtures and asserting the known expected outputs
-- [ ] run project tests - must pass before next task
+- [x] Implement `src/reconcile.js` cash-position aggregation across accounts as a pure function
+- [x] Implement `reconcile` as a pure function producing `summary`, `matched`, and `exceptions` with all six exception `type`s, honoring `tolerance`
+- [x] Implement `check_payment` matching logic (`found`/`pending`/`not_found` with confidence and explanation) over the normalized model
+- [x] write tests driving `reconcile`/cash-position/`check_payment` against the synthetic fixtures and asserting the known expected outputs
+- [x] run project tests - must pass before next task
 
 ### Task 4: Cash-gap forecast engine (M2/M5 domain)
 
