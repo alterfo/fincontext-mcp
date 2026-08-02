@@ -127,6 +127,20 @@ describe('connector.pull', () => {
     expect(calls.some((c) => c.includes('filter='))).toBe(true);
   });
 
+  test('ISO period bounds are rewritten to MoySklad moment format in the filter', async () => {
+    const calls = [];
+    const connector = createMoyskladConnector({ token: 'ms.token', http: fakeHttp(calls) });
+
+    await connector.pull({ from: '2026-07-01T00:00:00.000Z', to: '2026-07-31T23:59:59.000Z' });
+
+    const filtered = calls.find((c) => c.includes('filter='));
+    const decoded = decodeURIComponent(filtered);
+    expect(decoded).toContain('moment>=2026-07-01 00:00:00');
+    expect(decoded).toContain('moment<=2026-07-31 23:59:59');
+    expect(decoded).not.toContain('moment>=2026-07-01T');
+    expect(decoded).not.toContain('Z;');
+  });
+
   test('requires a token', async () => {
     const connector = createMoyskladConnector({ http: async () => ({ ok: true, json: async () => ({}) }) });
     await expect(connector.listDocuments('paymentin')).rejects.toThrow(/token required/);

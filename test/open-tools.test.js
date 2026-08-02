@@ -1,7 +1,7 @@
 'use strict';
 
 const { createStore } = require('../src/ydb');
-const { createOpenHandlers, syncSource } = require('../src/handlers');
+const { createOpenHandlers, createPremiumHandlers, syncSource } = require('../src/handlers');
 const { handleRequest } = require('../src/mcp');
 const { normalizeTransaction, normalizeAccount } = require('../src/connectors/tochka');
 
@@ -145,5 +145,31 @@ describe('check_payment wired to cached connector data', () => {
     const handlers = createOpenHandlers(store);
     const res = await rpc('check_payment', { doc_number: 'NOPE-9' }, { handlers, store });
     expect(res.result.status).toBe('not_found');
+  });
+});
+
+describe('cashgap_forecast wired through the MCP router', () => {
+  test('is callable when the forecast module is unlocked and seeds from the cash position', async () => {
+    const store = await seededStore();
+    const handlers = createPremiumHandlers(store);
+    const res = await rpc(
+      'cashgap_forecast',
+      { as_of: '2026-08-01T10:00:00Z', currency: 'RUB', horizon_days: 14 },
+      { handlers, store, unlockedModules: ['forecast'] }
+    );
+
+    expect(res.error).toBeUndefined();
+    expect(res.result.horizon_days).toBe(14);
+    expect(res.result.current_position).toEqual({ amount: 150050, currency: 'RUB' });
+    expect(res.result.daily).toHaveLength(14);
+    expect(res.result.gap.will_occur).toBe(false);
+  });
+
+  test('is gated with UPGRADE_REQUIRED when the forecast module is locked', async () => {
+    const store = await seededStore();
+    const handlers = createPremiumHandlers(store);
+    const res = await rpc('cashgap_forecast', {}, { handlers, store, unlockedModules: [] });
+    expect(res.result).toBeUndefined();
+    expect(res.error.data.upgrade_url).toBeDefined();
   });
 });

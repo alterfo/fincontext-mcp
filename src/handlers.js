@@ -1,6 +1,7 @@
 'use strict';
 
 const { computeCashPosition, checkPayment, reconcile } = require('./reconcile');
+const { cashgapForecast } = require('./forecast');
 const { DEFAULT_CURRENCY, hashParts } = require('./model');
 
 async function buildAccountInputs(store, filterIds) {
@@ -97,9 +98,28 @@ function createReconcileHandler(store) {
   };
 }
 
+function createForecastHandler(store) {
+  return async (args = {}) => {
+    const currency = args.currency || DEFAULT_CURRENCY;
+    const agg = await store.materializePositions({ as_of: args.as_of || null, currency });
+    const inputs = agg.forecast_inputs || {};
+    return cashgapForecast({
+      as_of: args.as_of || inputs.as_of || null,
+      current_position: inputs.current_position,
+      currency,
+      horizon_days: args.horizon_days,
+      scenario: args.scenario,
+      include_recurring: args.include_recurring,
+      scheduled: args.scheduled || [],
+      recurring: args.recurring || [],
+    });
+  };
+}
+
 function createPremiumHandlers(store) {
   return {
     reconcile: createReconcileHandler(store),
+    cashgap_forecast: createForecastHandler(store),
   };
 }
 
@@ -129,6 +149,7 @@ module.exports = {
   createOpenHandlers,
   createPremiumHandlers,
   createReconcileHandler,
+  createForecastHandler,
   syncSource,
   buildAccountInputs,
 };

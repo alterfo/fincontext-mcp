@@ -55,8 +55,9 @@ describe('infra Terraform module — resources', () => {
 
   const REQUIRED_RESOURCES = [
     ['yandex_iam_service_account', 'fincontext'],
-    ['yandex_resourcemanager_folder_iam_member', 'ydb_editor'],
-    ['yandex_resourcemanager_folder_iam_member', 'function_invoker'],
+    ['yandex_ydb_database_iam_binding', 'ydb_editor'],
+    ['yandex_function_iam_binding', 'mcp_invoker'],
+    ['yandex_function_iam_binding', 'sync_invoker'],
     ['yandex_ydb_database_serverless', 'fincontext'],
     ['yandex_lockbox_secret', 'tochka'],
     ['yandex_lockbox_secret', 'moysklad'],
@@ -83,14 +84,17 @@ describe('infra Terraform module — resources', () => {
     expect(main).toMatch(/id\s*=\s*yandex_function\.sync\.id/);
   });
 
-  test('lockbox read is granted per-secret, not folder-wide', () => {
+  test('access is granted per-resource, never folder-wide', () => {
     expect(main).toMatch(/role\s*=\s*"lockbox\.payloadViewer"/);
     expect(main).not.toMatch(/role\s*=\s*"lockbox\.admin"/);
-    const folderMembers = main.match(/resource\s+"yandex_resourcemanager_folder_iam_member"/g) || [];
+    const folderMembers = main.match(/resource\s+"yandex_resourcemanager_folder_iam_(member|binding)"/g) || [];
+    expect(folderMembers.length).toBe(0);
+    expect(main).toMatch(/resource\s+"yandex_ydb_database_iam_binding"\s+"ydb_editor"\s*{[^}]*database_id\s*=\s*yandex_ydb_database_serverless\.fincontext\.id/s);
     for (const role of ['ydb.editor', 'functions.functionInvoker']) {
       expect(main).toMatch(new RegExp(`role\\s*=\\s*"${role.replace('.', '\\.')}"`));
     }
-    expect(folderMembers.length).toBe(2);
+    const functionBindings = main.match(/resource\s+"yandex_function_iam_binding"/g) || [];
+    expect(functionBindings.length).toBe(2);
     const lockboxMembers = main.match(/resource\s+"yandex_lockbox_secret_iam_member"/g) || [];
     expect(lockboxMembers.length).toBe(2);
   });

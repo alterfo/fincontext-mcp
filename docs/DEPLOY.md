@@ -21,12 +21,13 @@ bank or accounting token.
 
 The service account is granted exactly:
 
-- `ydb.editor` — read/write the FinContext YDB database.
-- `functions.functionInvoker` — the timer trigger and the API Gateway invoke the functions.
+- `ydb.editor` **on the FinContext database only** (not folder-wide) — read/write that one database.
+- `functions.functionInvoker` **per function** (not folder-wide) — so the timer trigger and the API Gateway can invoke the two FinContext functions and nothing else.
 - `lockbox.payloadViewer` **per secret** (not folder-wide) — read the two token secrets and nothing else.
 
-No `admin`, no `editor` on the folder, no write access to Lockbox. The identity
-can read the tokens it needs and touch its own database — nothing more.
+No `admin`, no `editor` on the folder, no folder-wide grants of any kind, no
+write access to Lockbox. The identity can read the tokens it needs and touch its
+own database — nothing more.
 
 ## Security model — what is stored, what never leaves your cloud
 

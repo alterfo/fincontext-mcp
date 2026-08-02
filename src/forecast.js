@@ -83,7 +83,8 @@ function expandRecurring(rule, start, horizon) {
   const days = [];
   if (rule.interval_days && rule.interval_days > 0) {
     const step = rule.interval_days;
-    let first = rule.start ? dayIndexBetween(start, toDateOnly(rule.start)) : step;
+    const ruleStart = rule.start ? toDateOnly(rule.start) : null;
+    let first = ruleStart ? dayIndexBetween(start, ruleStart) : step;
     if (first < 1) {
       // Advance to the first occurrence inside the horizon window.
       first += Math.ceil((1 - first) / step) * step;
@@ -116,8 +117,10 @@ function cashgapForecast(input = {}) {
   // 1) Collect raw flow events as {day, direction, amount}.
   const events = [];
   for (const f of input.scheduled || []) {
-    const day = dayIndexBetween(start, toDateOnly(f.date));
-    if (day === null || Number.isNaN(day)) continue;
+    const fd = toDateOnly(f.date);
+    if (!fd) continue;
+    const day = dayIndexBetween(start, fd);
+    if (Number.isNaN(day)) continue;
     events.push({ day, direction: f.direction, amount: f.amount });
   }
   if (includeRecurring) {

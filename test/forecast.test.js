@@ -105,6 +105,29 @@ describe('cashgap_forecast — recurring flows', () => {
     expect(days).toEqual([9, 40, 68]);
   });
 
+  test('a scheduled flow with a missing/invalid date is skipped, not fatal', () => {
+    const out = cashgapForecast({
+      as_of: '2026-01-01',
+      current_position: 50000,
+      horizon_days: 10,
+      scheduled: [
+        { direction: 'out', amount: 500 },
+        { date: 'not-a-date', direction: 'out', amount: 700 },
+        { date: '2026-01-05', direction: 'out', amount: 10000 },
+      ],
+    });
+    expect(out.daily[9].projected_balance).toBe(40000);
+  });
+
+  test('an interval rule with an invalid start falls back to first-at-interval', () => {
+    const days = expandRecurring(
+      { direction: 'out', amount: 1, interval_days: 7, start: 'not-a-date' },
+      '2026-01-01',
+      30
+    );
+    expect(days).toEqual([7, 14, 21, 28]);
+  });
+
   test('include_recurring=false drops recurring flows from the projection', () => {
     const base = {
       as_of: '2026-01-01',

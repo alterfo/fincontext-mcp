@@ -32,6 +32,12 @@ function normalizeMoment(moment) {
   return text.includes(' ') ? text.replace(' ', 'T') : text;
 }
 
+function toMoyskladMoment(value) {
+  if (!value) return '';
+  const text = String(value).trim();
+  return text.slice(0, 19).replace('T', ' ');
+}
+
 function extractCurrency(raw) {
   const rate = pick(raw, 'rate', 'Rate');
   const currency = rate && pick(rate, 'currency', 'Currency');
@@ -113,8 +119,8 @@ function createMoyskladConnector(opts = {}) {
 
   function filterFor(period = {}) {
     const clauses = [];
-    if (period.from) clauses.push(`moment>=${period.from}`);
-    if (period.to) clauses.push(`moment<=${period.to}`);
+    if (period.from) clauses.push(`moment>=${toMoyskladMoment(period.from)}`);
+    if (period.to) clauses.push(`moment<=${toMoyskladMoment(period.to)}`);
     return clauses.length ? `&filter=${encodeURIComponent(clauses.join(';'))}` : '';
   }
 

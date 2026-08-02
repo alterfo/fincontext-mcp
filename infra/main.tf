@@ -20,22 +20,28 @@ resource "yandex_iam_service_account" "fincontext" {
   description = "Runtime identity for FinContext functions: YDB access and Lockbox read only."
 }
 
-resource "yandex_resourcemanager_folder_iam_member" "ydb_editor" {
-  folder_id = var.folder_id
-  role      = "ydb.editor"
-  member    = "serviceAccount:${yandex_iam_service_account.fincontext.id}"
-}
-
-resource "yandex_resourcemanager_folder_iam_member" "function_invoker" {
-  folder_id = var.folder_id
-  role      = "functions.functionInvoker"
-  member    = "serviceAccount:${yandex_iam_service_account.fincontext.id}"
-}
-
 resource "yandex_ydb_database_serverless" "fincontext" {
   folder_id = var.folder_id
   name      = "${var.function_name}-ydb"
   labels    = local.common_labels
+}
+
+resource "yandex_ydb_database_iam_binding" "ydb_editor" {
+  database_id = yandex_ydb_database_serverless.fincontext.id
+  role        = "ydb.editor"
+  members     = ["serviceAccount:${yandex_iam_service_account.fincontext.id}"]
+}
+
+resource "yandex_function_iam_binding" "mcp_invoker" {
+  function_id = yandex_function.mcp.id
+  role        = "functions.functionInvoker"
+  members     = ["serviceAccount:${yandex_iam_service_account.fincontext.id}"]
+}
+
+resource "yandex_function_iam_binding" "sync_invoker" {
+  function_id = yandex_function.sync.id
+  role        = "functions.functionInvoker"
+  members     = ["serviceAccount:${yandex_iam_service_account.fincontext.id}"]
 }
 
 resource "yandex_lockbox_secret" "tochka" {

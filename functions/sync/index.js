@@ -5,6 +5,7 @@ const { createLockbox } = require('../../src/lockbox');
 const { createTochkaConnector } = require('../../src/connectors/tochka');
 const { createMoyskladConnector } = require('../../src/connectors/moysklad');
 const { incrementalSync } = require('../../src/sync');
+const { unlockedModules } = require('../../src/license');
 
 const store = createStore();
 
@@ -39,6 +40,7 @@ module.exports.handler = async function handler(_event, _context) {
     sources,
     now,
     currency: process.env.REPORT_CURRENCY || undefined,
+    unlockedModules: unlockedModules(process.env.FINCONTEXT_PRO_KEY || null),
   });
 
   return {
