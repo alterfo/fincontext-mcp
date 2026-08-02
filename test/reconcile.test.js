@@ -114,6 +114,42 @@ describe('reconcile tolerance', () => {
   });
 });
 
+describe('reconcile groups by stable reference, never by amount', () => {
+  const cp = { name: 'OOO Postavshik', inn: '7701234567' };
+  const base = {
+    source: 'tochka',
+    account_id: 'acc-1',
+    currency: 'RUB',
+    booked_at: '2026-07-02T00:00:00.000Z',
+    counterparty: cp,
+    purpose: 'Oplata za uslugi',
+    status: 'posted',
+  };
+
+  test('amount_mismatch pairs group by inn when doc_number/uin are absent', () => {
+    const bank = makeTransaction({ ...base, kind: 'bank', direction: 'out', amount: 3000000, native_id: 'b-1' });
+    const ledger = makeTransaction({ ...base, kind: 'ledger', direction: 'out', amount: 2990000, native_id: 'l-1' });
+    const res = reconcile({ bank: [bank], ledger: [ledger] });
+    expect(res.exceptions.filter((e) => e.type === 'missing_in_ledger')).toHaveLength(0);
+    expect(res.exceptions.filter((e) => e.type === 'missing_in_bank')).toHaveLength(0);
+    const mm = res.exceptions.filter((e) => e.type === 'amount_mismatch');
+    expect(mm).toHaveLength(1);
+    expect(mm[0].delta).toBe(10000);
+  });
+
+  test('partial_payment pairs group by purpose when no inn/doc_number/uin', () => {
+    const noInn = { ...base, counterparty: { name: 'OOO Bez INN' } };
+    const bank = makeTransaction({ ...noInn, kind: 'bank', direction: 'in', amount: 3000000, native_id: 'b-2' });
+    const ledger = makeTransaction({ ...noInn, kind: 'ledger', direction: 'in', amount: 5000000, native_id: 'l-2' });
+    const res = reconcile({ bank: [bank], ledger: [ledger] });
+    expect(res.exceptions.filter((e) => e.type === 'missing_in_ledger')).toHaveLength(0);
+    expect(res.exceptions.filter((e) => e.type === 'missing_in_bank')).toHaveLength(0);
+    const pp = res.exceptions.filter((e) => e.type === 'partial_payment');
+    expect(pp).toHaveLength(1);
+    expect(pp[0].delta).toBe(2000000);
+  });
+});
+
 describe('computeCashPosition', () => {
   test('sums closing balances across accounts and reports per-account staleness', () => {
     const c = generateCase({ seed: 2 });

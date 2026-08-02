@@ -127,8 +127,8 @@ function linkKey(tx) {
   const cp = tx.counterparty || {};
   if (tx.uin) return `uin:${tx.direction}:${tx.uin}`;
   if (tx.doc_number) return `doc:${tx.direction}:${tx.doc_number}`;
-  if (cp.inn) return `inn:${tx.direction}:${cp.inn}:${tx.amount}`;
-  return `p:${tx.direction}:${tx.purpose || ''}:${tx.amount}`;
+  if (cp.inn) return `inn:${tx.direction}:${cp.inn}`;
+  return `p:${tx.direction}:${tx.purpose || ''}`;
 }
 
 /** Collapse exact replays (same `dedup_key`) on one side; extras become duplicates. */
